@@ -1,8 +1,13 @@
+<?
+
 /*
 
-Aqui debe ir la parte en php
+En este apartado debe ir el codigo php, que permitira
+conectarnos con la base de datos
 
 */
+
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -15,6 +20,7 @@ Aqui debe ir la parte en php
 
 <body>
     <form action="register.php" method="POST">
+        <h1>Registro</h1>
         <div id="input">
             <input type="text" name="nombre" placeholder="Nombre">
         </div>
