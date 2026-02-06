@@ -21,7 +21,34 @@ CREATE TABLE vehiculos(
     fecha_ingreso DATE NOT NULL DEFAULT CURRENT_DATE 
 );
 
---para conectar las tablas con una clave foranea.
-ALTER TABLE emails
-ADD CONSTRAINT fk_emails_personas
-FOREIGN KEY (persona) REFERENCES personas(identificador)
+CREATE TABLE marca(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    pais_origen VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE modelo(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    marca_id INT NOT NULL,
+    nombre VARCHAR(100),
+    tipo VARCHAR(50) CHECK (tipo IN ('sedan', 'SUV', 'pickup', 'berlina', 'furgonetas', 'coup', 'descapotables', 'rancheras'))
+);
+
+CREATE TABLE cliente(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(255) NOT NULL,
+    DNI_NIE VARCHAR(9) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    telefono INT NOT NULL,
+    fecha_registro
+);
+
+ALTER TABLE vehiculos
+ADD CONSTRAINT fk_vehiculos_marca
+FOREIGN KEY (marca_id) REFERENCES marca(id)
+
+ALTER TABLE vehiculos
+ADD CONSTRAINT fk_vehiculos_modelo
+FOREIGN KEY (modelo_id) REFERENCES modelo(id)
+
+

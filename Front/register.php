@@ -28,6 +28,12 @@ conectarnos con la base de datos
             <input type="text" name="apellidos" placeholder="Apellidos">
         </div>
         <div id="input">
+            <input type="text" name="dni_nie" placeholder="DNI/NIE">
+        </div>
+        <div id="input">
+            <input type="text" name="telefono" placeholder="Telefono">
+        </div>
+        <div id="input">
             <input type="text" name="usuario" placeholder="Nombre de usuario">
         </div>
         <div id="input">
