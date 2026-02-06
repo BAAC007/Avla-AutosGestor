@@ -22,7 +22,7 @@ conectarnos con la base de datos
     <header>
         <nav>
             <div class="izquierda">
-                <h1 class="logo">Avila-AutosGestor</h1>
+                <h1 class="logo">AVLA RACERS</h1>
             </div>
             <div class="centro">
                 <a>Vehiculos</a>
