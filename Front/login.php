@@ -15,11 +15,11 @@ conectarnos con la base de datos
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Inicio de sesion</title>
 </head>
 
 <body>
-    <form action="register.php" method="POST">
+    <form action="login.php" method="POST">
         <h1>Inicio de sesion</h1>
         <div id="input">
             <input type="text" name="usuario" placeholder="Nombre de usuario">
