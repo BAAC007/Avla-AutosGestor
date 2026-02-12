@@ -1,12 +1,37 @@
 sudo mysql -u root -p
 
---Creamos la base de datos AVLA y las tablas principales.
+--Creamos la base de datos AVLA.
 
 CREATE DATABASE AVLA
 DEFAULT CHARACTER SET utf8mb4
 DEFAULT COLLATE utf8mb4_unicode_ci;;
 
+--Usamos la base de datos AVLA.
 USE AVLA;
+
+--Creamos un usuario para las conexiones futuras.
+
+CREATE USER 
+'AVLA'@'localhost' 
+IDENTIFIED  BY 'AVLA*123$';
+
+GRANT USAGE ON *.* TO 'AVLA'@'localhost';
+
+ALTER USER 'AVLA'@'localhost' 
+REQUIRE NONE 
+WITH MAX_QUERIES_PER_HOUR 0 
+MAX_CONNECTIONS_PER_HOUR 0 
+MAX_UPDATES_PER_HOUR 0 
+MAX_USER_CONNECTIONS 0;
+
+GRANT ALL PRIVILEGES ON AVLA.* 
+TO 'AVLA'@'localhost';
+
+FLUSH PRIVILEGES;
+
+
+--Ahora creamos las tablas principales.
+
 
 CREATE TABLE vehiculo(
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -37,11 +62,12 @@ CREATE TABLE modelo(
 CREATE TABLE cliente(
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(255) NOT NULL,
+    contrasena VARCHAR(50) NOT NULL UNIQUE,
     DNI_NIE VARCHAR(9) UNIQUE NOT NULL,
     email VARCHAR(255) NOT NULL,
     telefono INT NOT NULL,
-    fecha_registro
-);
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE vehiculo
 ADD CONSTRAINT fk_vehiculo_marca
