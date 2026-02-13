@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 require_once '../Back/inc/db.php';
 $mensaje = '';
@@ -7,66 +6,86 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // 🔑 CAMPOS CORRECTOS según TU FORMULARIO HTML:
+    // 🔑 Capturar todos los campos del formulario
     $nombre = trim($_POST['nombre'] ?? '');
     $apellidos = trim($_POST['apellidos'] ?? '');
+    $usuario = trim($_POST['usuario'] ?? '');
     $dni_nie = trim($_POST['dni_nie'] ?? '');
+    $email_real = trim($_POST['email_real'] ?? '');
     $telefono = trim($_POST['telefono'] ?? '');
-    $usuario = trim($_POST['usuario'] ?? ''); // ¡OJO: tu tabla NO tiene este campo!
     $clave = $_POST['clave'] ?? '';
-    
-    // ⚠️ PROBLEMA CRÍTICO: Tu tabla CLIENTE requiere EMAIL pero NO existe en tu formulario
-    // Solución temporal: usamos el usuario como email (NO RECOMENDADO para producción)
-    // ¡MEJOR: agrega un campo email al formulario!
-    $email = !empty($usuario) ? $usuario . '@concesionario.avla' : 'cliente@avla.es';
+    $clave_confirm = $_POST['clave_confirm'] ?? '';
     
     // Validaciones
-    if (empty($nombre) || empty($dni_nie) || empty($clave)) {
-        $error = "Los campos Nombre, DNI/NIE y Contraseña son obligatorios";
+    if (empty($nombre) || empty($apellidos) || empty($usuario) || empty($dni_nie) || empty($email_real) || empty($clave)) {
+        $error = "Todos los campos marcados con * son obligatorios";
+    } elseif ($clave !== $clave_confirm) {
+        $error = "Las contraseñas no coinciden";
     } elseif (strlen($clave) < 8) {
         $error = "La contraseña debe tener al menos 8 caracteres";
+    } elseif (strlen($usuario) < 4) {
+        $error = "El nombre de usuario debe tener al menos 4 caracteres";
+    } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $usuario)) {
+        $error = "El usuario solo puede contener letras, números y guión bajo";
+    } elseif (!filter_var($email_real, FILTER_VALIDATE_EMAIL)) {
+        $error = "Por favor ingresa un email válido";
     } else {
         try {
-            // ✅ Usa $pdo directamente (ya está definido en db.php)
-            // Paso 1: Verificar DNI/NIE duplicado
-            $stmt = $pdo->prepare("SELECT id FROM cliente WHERE DNI_NIE = :dni_nie");
-            $stmt->execute(['dni_nie' => $dni_nie]);
+            // Iniciar transacción
+            $pdo->beginTransaction();
+            
+            // Paso 1: Verificar si el usuario ya existe
+            $stmt = $pdo->prepare("SELECT id FROM cliente WHERE usuario = :usuario");
+            $stmt->execute(['usuario' => $usuario]);
             if ($stmt->fetch()) {
-                $error = "Este DNI/NIE ya está registrado";
-                exit;
+                $error = "Este nombre de usuario ya está en uso. Elige otro.";
+                $pdo->rollBack();
+            } else {
+                // Paso 2: Verificar DNI/NIE duplicado
+                $stmt = $pdo->prepare("SELECT id FROM cliente WHERE DNI_NIE = :dni_nie");
+                $stmt->execute(['dni_nie' => $dni_nie]);
+                if ($stmt->fetch()) {
+                    $error = "Este DNI/NIE ya está registrado";
+                    $pdo->rollBack();
+                } else {
+                    // Paso 3: Verificar email duplicado
+                    $stmt = $pdo->prepare("SELECT id FROM cliente WHERE email = :email");
+                    $stmt->execute(['email' => $email_real]);
+                    if ($stmt->fetch()) {
+                        $error = "Este email ya está registrado";
+                        $pdo->rollBack();
+                    } else {
+                        // Paso 4: Hashear contraseña
+                        $contrasena_hash = password_hash($clave, PASSWORD_DEFAULT);
+                        
+                        // Paso 5: Combinar nombre + apellidos
+                        $nombre_completo = trim($nombre . ' ' . $apellidos);
+                        
+                        // Paso 6: Insertar cliente con TODOS los campos
+                        $stmt = $pdo->prepare("
+                            INSERT INTO cliente (nombre, usuario, contrasena, DNI_NIE, email, telefono) 
+                            VALUES (:nombre, :usuario, :contrasena, :dni_nie, :email, :telefono)
+                        ");
+                        
+                        $stmt->execute([
+                            'nombre' => $nombre_completo,
+                            'usuario' => $usuario,
+                            'contrasena' => $contrasena_hash,
+                            'dni_nie' => $dni_nie,
+                            'email' => $email_real,
+                            'telefono' => $telefono
+                        ]);
+                        
+                        $pdo->commit();
+                        $mensaje = "¡Registro exitoso! Ya puedes iniciar sesión";
+                        
+                        // Limpiar campos después del registro exitoso
+                        $nombre = $apellidos = $usuario = $dni_nie = $email_real = $telefono = '';
+                    }
+                }
             }
-            
-            // Paso 2: Verificar email duplicado (usando el email temporal)
-            $stmt = $pdo->prepare("SELECT id FROM cliente WHERE email = :email");
-            $stmt->execute(['email' => $email]);
-            if ($stmt->fetch()) {
-                $error = "Este email ya está registrado";
-                exit;
-            }
-            
-            // Paso 3: Hashear contraseña
-            $contrasena_hash = password_hash($clave, PASSWORD_DEFAULT);
-            
-            // Paso 4: Combinar nombre + apellidos para el campo 'nombre' de la tabla
-            $nombre_completo = trim($nombre . ' ' . $apellidos);
-            
-            // Paso 5: Insertar cliente
-            $stmt = $pdo->prepare("
-                INSERT INTO cliente (nombre, contrasena, DNI_NIE, email, telefono) 
-                VALUES (:nombre, :contrasena, :dni_nie, :email, :telefono)
-            ");
-            
-            $stmt->execute([
-                'nombre' => $nombre_completo,
-                'contrasena' => $contrasena_hash,
-                'dni_nie' => $dni_nie,
-                'email' => $email, // ¡TEMPORAL! Debes agregar campo email real
-                'telefono' => $telefono
-            ]);
-            
-            $mensaje = "¡Registro exitoso! Ya puedes iniciar sesión";
-            
         } catch (PDOException $e) {
+            $pdo->rollBack();
             $error = "Error al registrar. Intente nuevamente.";
             error_log("Registro error: " . $e->getMessage());
         }
@@ -105,6 +124,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 30px;
             font-size: 28px;
         }
+        .required {
+            color: #c62828;
+            font-weight: bold;
+        }
         #input {
             margin-bottom: 20px;
         }
@@ -119,6 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input:focus {
             outline: none;
             border-color: #667eea;
+        }
+        input:required {
+            border-color: #2196F3;
         }
         .button {
             text-align: center;
@@ -165,6 +191,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: block;
             font-weight: bold;
         }
+        .form-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -181,35 +213,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <form action="register.php" method="POST">
             <div id="input">
-                <input type="text" name="nombre" placeholder="Nombre(s)" required 
+                <input type="text" name="nombre" placeholder="Nombre(s) *" required 
                        value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
             </div>
             <div id="input">
-                <input type="text" name="apellidos" placeholder="Apellidos" required 
+                <input type="text" name="apellidos" placeholder="Apellidos *" required 
                        value="<?php echo htmlspecialchars($apellidos ?? ''); ?>">
             </div>
             <div id="input">
-                <input type="text" name="dni_nie" placeholder="DNI/NIE" required 
-                       value="<?php echo htmlspecialchars($dni_nie ?? ''); ?>">
+                <input type="text" name="usuario" placeholder="Nombre de usuario *" required 
+                       value="<?php echo htmlspecialchars($usuario ?? ''); ?>" minlength="4" maxlength="50">
+                <small class="form-note">⚠️ Solo letras, números y guión bajo. Mínimo 4 caracteres.</small>
             </div>
             <div id="input">
-                <input type="tel" name="telefono" placeholder="Teléfono" required 
-                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>">
+                <input type="text" name="dni_nie" placeholder="DNI/NIE *" required 
+                       value="<?php echo htmlspecialchars($dni_nie ?? ''); ?>" maxlength="9">
             </div>
             <div id="input">
-                <input type="email" name="email_real" placeholder="Email (¡IMPORTANTE!)" required>
-                <small style="color:#666; display:block; margin-top:5px;">
-                    ⚠️ Este campo es obligatorio para recibir ofertas y facturas
-                </small>
+                <input type="email" name="email_real" placeholder="Email *" required 
+                       value="<?php echo htmlspecialchars($email_real ?? ''); ?>">
+                <small class="form-note">📧 Recibirás ofertas y facturas en este email</small>
             </div>
             <div id="input">
-                <input type="text" name="usuario" placeholder="Nombre de usuario (opcional)">
+                <input type="tel" name="telefono" placeholder="Teléfono *" required 
+                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9,15}">
             </div>
             <div id="input">
-                <input type="password" name="clave" placeholder="Contraseña (mín. 8 caracteres)" required>
+                <input type="password" name="clave" placeholder="Contraseña *" required minlength="8">
+                <small class="form-note">🔒 Mínimo 8 caracteres</small>
             </div>
             <div id="input">
-                <input type="password" name="clave_confirm" placeholder="Confirmar contraseña" required>
+                <input type="password" name="clave_confirm" placeholder="Confirmar contraseña *" required minlength="8">
             </div>
             <div class="button">
                 <button type="submit">Crear Cuenta</button>
@@ -220,28 +254,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     
     <script>
-        // Validación simple de contraseñas en el frontend
+        // Validación mejorada de contraseñas y usuario
         document.querySelector('form').addEventListener('submit', function(e) {
             const clave = document.querySelector('[name="clave"]').value;
             const confirm = document.querySelector('[name="clave_confirm"]').value;
+            const usuario = document.querySelector('[name="usuario"]').value;
             const email = document.querySelector('[name="email_real"]').value;
             
+            // Validar contraseñas
             if (clave !== confirm) {
                 e.preventDefault();
                 alert('❌ Las contraseñas no coinciden');
-                return;
+                return false;
             }
             
             if (clave.length < 8) {
                 e.preventDefault();
                 alert('❌ La contraseña debe tener al menos 8 caracteres');
-                return;
+                return false;
             }
             
+            // Validar usuario
+            if (usuario.length < 4) {
+                e.preventDefault();
+                alert('❌ El nombre de usuario debe tener al menos 4 caracteres');
+                return false;
+            }
+            
+            if (!/^[a-zA-Z0-9_]+$/.test(usuario)) {
+                e.preventDefault();
+                alert('❌ El usuario solo puede contener letras, números y guión bajo (_)');
+                return false;
+            }
+            
+            // Validar email
             if (!email.includes('@')) {
                 e.preventDefault();
                 alert('❌ Por favor ingresa un email válido');
-                return;
+                return false;
+            }
+        });
+        
+        // Mostrar sugerencias en tiempo real para el usuario
+        document.querySelector('[name="usuario"]').addEventListener('input', function(e) {
+            const usuario = e.target.value;
+            const regex = /^[a-zA-Z0-9_]*$/;
+            
+            if (!regex.test(usuario)) {
+                e.target.value = usuario.replace(/[^a-zA-Z0-9_]/g, '');
             }
         });
     </script>
