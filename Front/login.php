@@ -1,16 +1,13 @@
-<?
+<?php
+// ⚠️ IMPORTANTE: Usa esta ruta para incluir tu db.php existente
+require_once '../Back/inc/db.php';
 
 session_start();
-
-// Incluir la conexión
-require_once 'config/database.php';
-
 $mensaje = '';
 $error = '';
 
 // Procesar login si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
     $dni_nie = $_POST['dni_nie'] ?? '';
     $contrasena = $_POST['contrasena'] ?? '';
     
@@ -19,9 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Por favor, complete todos los campos";
     } else {
         try {
-            $pdo = getDBConnection();
-            
-            // Preparar consulta (protección contra SQL Injection)
+            // ✅ Usa la conexión ya configurada en db.php
             $stmt = $pdo->prepare("
                 SELECT id, nombre, contrasena, email 
                 FROM cliente 
@@ -39,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['cliente_email'] = $cliente['email'];
                 $_SESSION['logueado'] = true;
                 
-                // Redirigir al dashboard
-                header('Location: dashboard.php');
+                // Redirigir al dashboard del cliente
+                header('Location: ../Back/dashboard.php'); // ¡Cambia esto si tienes otro dashboard!
                 exit();
                 
             } else {
@@ -53,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>
