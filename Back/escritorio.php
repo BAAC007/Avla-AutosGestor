@@ -12,15 +12,16 @@
 	<head>
   	<title>AVLA autosgestor</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="css/estilo.css">
+    <link rel="stylesheet" href="css/escritorio.css">
   </head>
   <body>
   	<nav>
-    	<button>Que quereis aqui?</button>
-      <button>Ideeas?</button>
-      <button>Mas cosas?</button>
+      <h2>Avla autosgestor</h2>
+    	<button>Buzon Cliente</button>
+      <button>Promociones</button>
+      <button>si?</button>
       <button><a href="index.php">Logout from admin</a></button>
-      <button><a href="../front/index.php">Ver sitio (Frontend)</a></button>
+      <button><a href="../Front/index.php">Ver sitio (Frontend)</a></button>
     </nav>
     <main>
     	<?php

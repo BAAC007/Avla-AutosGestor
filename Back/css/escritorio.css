@@ -1,0 +1,363 @@
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #ffffff;
+  color: #333;
+  line-height: 1.5;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+nav {
+  flex: 0 0 250px;
+  background: #1f2933;
+  color: white;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+nav h2 {
+  background: #2d3a45;
+  color: #ee8732;
+  padding: 12px;
+  text-align: center;
+  border-radius: 4px;
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+nav button {
+  background: #2d3a45;
+  border: none;
+  color: white;
+  padding: 12px;
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px;
+}
+
+nav button:hover {
+  background: #3a4a57;
+}
+
+/* Fix para links dentro de botones del nav */
+nav button a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+}
+
+nav a {
+  color: #9cc4ff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* ===== MAIN CONTENT ===== */
+main {
+  flex: 1;
+  padding: 30px;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+/* ===== HEADINGS ===== */
+main h1 {
+  background: #2d3a45;
+  color: #7aadfa;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: 4px;
+}
+
+main h2 {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  color: #374151;
+  text-align: center;
+}
+
+main h3 {
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0 0 28px 0;
+  color: #5b616c;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+table th {
+  background: #f0f2f5;
+  color: #333;
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 2px solid #ddd;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+table tr:hover {
+  background: #f1f5f9;
+}
+
+table td:last-child {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ===== ACTION BUTTONS (Editar/Eliminar) ===== */
+.editar,
+.eliminar {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 14px;
+  text-decoration: none;
+  margin: 0 4px;
+  transition: background 0.2s ease;
+}
+
+.editar {
+  background: #374151;
+  color: white;
+}
+
+.editar:hover {
+  background: #115e59;
+}
+
+.eliminar {
+  background: #b91c1c;
+  color: white;
+}
+
+.eliminar:hover {
+  background: #991b1b;
+}
+
+/* ===== FLOATING BUTTON (Nuevo) ===== */
+#nuevo {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 50px;
+  height: 50px;
+  background: #0f766e;
+  color: white;
+  border-radius: 50%;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: background 0.2s ease, transform 0.1s ease;
+  z-index: 100;
+}
+
+#nuevo:hover {
+  background: #115e59;
+  transform: scale(1.05);
+}
+
+#nuevo:active {
+  transform: scale(0.95);
+}
+
+/* ===== FORMULARIOS (Create/Update) ===== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.controlformulario {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.controlformulario label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+form input,
+form textarea,
+form select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+form button[type="submit"],
+form input[type="submit"] {
+  background: #0f766e;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-top: 8px;
+}
+
+form button[type="submit"]:hover,
+form input[type="submit"]:hover {
+  background: #115e59;
+}
+
+/* ===== LISTA DE CATEGORÍAS ===== */
+#lista_categorias {
+  text-align: center;
+  padding: 10px;
+}
+
+#lista_categorias ol {
+  list-style-position: inside;
+  padding: 0;
+  margin: 10px 0;
+}
+
+#lista_categorias li {
+  font-style: italic;
+  color: #555;
+  margin: 4px 0;
+}
+
+/* ===== MENSAJES/ALERTAS (Opcional para feedback) ===== */
+.alerta {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.alerta.exito {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alerta.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+  
+  nav {
+    flex: 0 0 auto;
+    height: auto;
+    position: relative;
+    padding: 16px;
+  }
+  
+  main {
+    padding: 16px;
+  }
+  
+  table {
+    font-size: 14px;
+    display: block;
+    overflow-x: auto;
+  }
+  
+  table th,
+  table td {
+    padding: 8px 6px;
+  }
+  
+  main h1 {
+    font-size: 24px;
+    margin: 0 0 16px 0;
+  }
+  
+  main .nuevo {
+    bottom: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+}
