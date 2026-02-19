@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 
 <head>
-    <title>Chamitos Movie Club</title>
+    <title>AVLA autosgestor</title>
     <meta charset="utf-8">
     <style>
         body,
