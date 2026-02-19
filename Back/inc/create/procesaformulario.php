@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/../db.php";
+include __DIR__ . "/../db.php";;
 
 // Recoger datos del POST (adaptados a vehiculo)
 $marca_id       = intval($_POST['marca_id']);        // INT, foreign key

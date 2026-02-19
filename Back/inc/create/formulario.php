@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/../db.php";
+include dirname(__DIR__, 2) . "/db.php";
 
 // 1. Obtener marcas y modelos para los <select>
 $marcas = $conexion->query("SELECT id, nombre FROM marca ORDER BY nombre ASC");

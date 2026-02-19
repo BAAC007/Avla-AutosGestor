@@ -1,9 +1,12 @@
 /* ===== RESET & BASE ===== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -125,7 +128,7 @@ table {
   border: 1px solid #d1d5db;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 table th {
@@ -205,7 +208,7 @@ table td:last-child {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   transition: background 0.2s ease, transform 0.1s ease;
   z-index: 100;
 }
@@ -325,39 +328,62 @@ form input[type="submit"]:hover {
   body {
     flex-direction: column;
   }
-  
+
   nav {
     flex: 0 0 auto;
     height: auto;
     position: relative;
     padding: 16px;
   }
-  
+
   main {
     padding: 16px;
   }
-  
+
   table {
     font-size: 14px;
     display: block;
     overflow-x: auto;
   }
-  
+
   table th,
   table td {
     padding: 8px 6px;
   }
-  
+
   main h1 {
     font-size: 24px;
     margin: 0 0 16px 0;
   }
-  
-  main .nuevo {
-    bottom: 16px;
-    right: 16px;
-    width: 44px;
-    height: 44px;
-    font-size: 24px;
-  }
+}
+/* ===== BOTÓN FLOTANTE NUEVO ===== */
+#nuevo {
+  position: fixed !important;
+  bottom: 30px !important;
+  right: 30px !important;
+  width: 56px !important;
+  height: 56px !important;
+  background: #0f766e !important;
+  color: white !important;
+  border-radius: 50% !important;
+  font-size: 32px !important;
+  font-weight: bold !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  z-index: 9999 !important;
+  transition: all 0.3s ease !important;
+  line-height: 1 !important;
+}
+
+#nuevo:hover {
+  background: #115e59 !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important;
+}
+
+#nuevo:active {
+  transform: scale(0.95) !important;
 }
