@@ -236,7 +236,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div id="input">
                 <input type="tel" name="telefono" placeholder="Teléfono *" required 
-                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9,15}">
+                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9}" tittle="Introduce 9 digitos" maxlength="9">
+                       <small class="forma">📞 Ejemplo 623258947</small>
             </div>
             <div id="input">
                 <input type="password" name="clave" placeholder="Contraseña *" required minlength="8">
