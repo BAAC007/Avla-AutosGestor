@@ -17,11 +17,10 @@ try {
         LIMIT 12
     ");
     $vehiculos = $stmt->fetchAll();
-    
+
     // Contar total de vehículos
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM vehiculo WHERE estado IN ('nuevo', 'usado')");
     $total_vehiculos = $stmt->fetch()['total'];
-    
 } catch (PDOException $e) {
     $vehiculos = [];
     $total_vehiculos = 0;
@@ -52,370 +51,18 @@ if ($logueado && $cliente_id) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚗 Concesionario AVLA - Vehículos Nuevos y Usados</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: white;
-            color: #333;
-        }
-        
-        /* Navbar */
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .navbar h1 {
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        .navbar h1:hover {
-            opacity: 0.9;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            transition: opacity 0.3s;
-        }
-        
-        .nav-links a:hover {
-            opacity: 0.8;
-        }
-        
-        .user-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-        
-        .btn-login {
-            background: white;
-            color: #667eea;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
-        }
-        
-        .btn-logout {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid white;
-        }
-        
-        .btn-logout:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=1600');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            text-align: center;
-            padding: 100px 20px;
-        }
-        
-        .hero h2 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .hero p {
-            font-size: 20px;
-            margin-bottom: 30px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .btn-hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
-            font-size: 18px;
-            border-radius: 50px;
-            text-decoration: none;
-            display: inline-block;
-            margin: 10px;
-            transition: transform 0.3s;
-        }
-        
-        .btn-hero:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* Stats Section */
-        .stats {
-            background: white;
-            padding: 60px 20px;
-            text-align: center;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .stat-item {
-            padding: 20px;
-        }
-        
-        .stat-number {
-            font-size: 48px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-        
-        .stat-label {
-            font-size: 16px;
-            color: #666;
-        }
-        
-        /* Vehículos Section */
-        .section {
-            padding: 60px 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .section-title h2 {
-            font-size: 36px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .section-title p {
-            color: #666;
-            font-size: 18px;
-        }
-        
-        .vehiculos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .vehiculo-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .vehiculo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-        
-        .vehiculo-img {
-            height: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 48px;
-        }
-        
-        .vehiculo-info {
-            padding: 20px;
-        }
-        
-        .vehiculo-marca {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .vehiculo-modelo {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .vehiculo-detalles {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .detalle-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .detalle-label {
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .detalle-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .vehiculo-precio {
-            font-size: 28px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-        
-        .btn-ver-mas {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px;
-            border-radius: 5px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-            font-weight: 600;
-            transition: opacity 0.3s;
-        }
-        
-        .btn-ver-mas:hover {
-            opacity: 0.9;
-        }
-        
-        /* Panel de Usuario (solo para logueados) */
-        .panel-usuario {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            margin: 40px 0;
-            border-radius: 10px;
-        }
-        
-        .panel-usuario h3 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .panel-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .panel-stat {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .panel-stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .panel-stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        /* Footer */
-        .footer {
-            background: #333;
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-        }
-        
-        .footer p {
-            margin: 10px 0;
-            color: #aaa;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 15px;
-                padding: 20px;
-            }
-            
-            .nav-links {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .hero h2 {
-                font-size: 32px;
-            }
-            
-            .vehiculos-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/index.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <div class="navbar">
-        <h1 onclick="window.location.href='index.php'" style="cursor: pointer;">🚗 Concesionario AVLA</h1>
+        <h1 onclick="window.location.href='index.php'" style="cursor: pointer;" id="avla-racers">🚗 Concesionario AVLA</h1>
         <div class="nav-links">
             <a href="#vehiculos">Vehículos</a>
             <a href="#servicios">Servicios</a>
@@ -430,7 +77,7 @@ if ($logueado && $cliente_id) {
                 <a href="logout.php" class="btn btn-logout">Cerrar Sesión</a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-login">Iniciar Sesión</a>
-                <a href="register.php" class="btn btn-login" style="background: #4CAF50;">Registrarse</a>
+                <a href="register.php" class="btn btn-login" style="background: #ffffff;">Registrarse</a>
             <?php endif; ?>
         </div>
     </div>
@@ -441,7 +88,7 @@ if ($logueado && $cliente_id) {
         <p>Tenemos una amplia selección de vehículos nuevos y usados para satisfacer todas tus necesidades</p>
         <a href="#vehiculos" class="btn-hero">Ver Vehículos</a>
         <?php if (!$logueado): ?>
-            <a href="register.php" class="btn-hero" style="background: #4CAF50;">Crear Cuenta</a>
+            <a href="register.php" class="btn-hero" style="background: #d1831c;">Crear Cuenta</a>
         <?php endif; ?>
     </div>
 
@@ -469,25 +116,25 @@ if ($logueado && $cliente_id) {
 
     <!-- Panel de Usuario (solo visible si está logueado) -->
     <?php if ($logueado): ?>
-    <div class="section" id="panel">
-        <div class="panel-usuario">
-            <h3>👋 Bienvenido, <?php echo htmlspecialchars($cliente_nombre); ?>!</h3>
-            <div class="panel-stats">
-                <div class="panel-stat">
-                    <div class="panel-stat-number"><?php echo $mis_compras; ?></div>
-                    <div class="panel-stat-label">Compras Realizadas</div>
-                </div>
-                <div class="panel-stat">
-                    <div class="panel-stat-number">0</div>
-                    <div class="panel-stat-label">Pruebas de Manejo</div>
-                </div>
-                <div class="panel-stat">
-                    <div class="panel-stat-number">⭐</div>
-                    <div class="panel-stat-label">Tu Calificación</div>
+        <div class="section" id="panel">
+            <div class="panel-usuario">
+                <h3>👋 Bienvenido, <?php echo htmlspecialchars($cliente_nombre); ?>!</h3>
+                <div class="panel-stats">
+                    <div class="panel-stat">
+                        <div class="panel-stat-number"><?php echo $mis_compras; ?></div>
+                        <div class="panel-stat-label">Compras Realizadas</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-number">0</div>
+                        <div class="panel-stat-label">Pruebas de Manejo</div>
+                    </div>
+                    <div class="panel-stat">
+                        <div class="panel-stat-number">⭐</div>
+                        <div class="panel-stat-label">Tu Calificación</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <!-- Vehículos Section -->
@@ -496,7 +143,7 @@ if ($logueado && $cliente_id) {
             <h2>🚗 Nuestros Vehículos</h2>
             <p>Descubre nuestra selección de vehículos nuevos y usados</p>
         </div>
-        
+
         <?php if (count($vehiculos) > 0): ?>
             <div class="vehiculos-grid">
                 <?php foreach ($vehiculos as $vehiculo): ?>
@@ -507,7 +154,7 @@ if ($logueado && $cliente_id) {
                         <div class="vehiculo-info">
                             <div class="vehiculo-marca"><?php echo htmlspecialchars($vehiculo['marca_nombre']); ?></div>
                             <div class="vehiculo-modelo"><?php echo htmlspecialchars($vehiculo['modelo_nombre']); ?></div>
-                            
+
                             <div class="vehiculo-detalles">
                                 <div class="detalle-item">
                                     <span class="detalle-label">Año</span>
@@ -528,11 +175,11 @@ if ($logueado && $cliente_id) {
                                     </span>
                                 </div>
                             </div>
-                            
+
                             <div class="vehiculo-precio">
                                 €<?php echo number_format($vehiculo['precio'], 0, ',', '.'); ?>
                             </div>
-                            
+
                             <a href="#" class="btn-ver-mas">Ver Detalles</a>
                         </div>
                     </div>
@@ -541,9 +188,9 @@ if ($logueado && $cliente_id) {
         <?php else: ?>
             <p style="text-align: center; color: #666;">No hay vehículos disponibles en este momento.</p>
         <?php endif; ?>
-        
+
         <div style="text-align: center; margin-top: 40px;">
-            <a href="#" class="btn-hero" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <a href="vehiculos.php" class="btn-hero" style="background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);">
                 Ver Todos los Vehículos
             </a>
         </div>
@@ -555,7 +202,7 @@ if ($logueado && $cliente_id) {
             <h2>✨ Nuestros Servicios</h2>
             <p>Te ofrecemos más que solo vehículos</p>
         </div>
-        
+
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-number">🔧</div>
@@ -586,14 +233,14 @@ if ($logueado && $cliente_id) {
             <h2>📞 Contáctanos</h2>
             <p>Estamos aquí para ayudarte</p>
         </div>
-        
+
         <div style="max-width: 600px; margin: 0 auto; text-align: center;">
             <p style="font-size: 18px; margin-bottom: 20px;">
                 <strong>📍 Dirección:</strong> Calle del Concesionario 123, Valencia<br>
                 <strong>📱 Teléfono:</strong> +34 96 123 45 67<br>
                 <strong>📧 Email:</strong> info@concesionarioavla.com
             </p>
-            
+
             <div style="margin-top: 30px;">
                 <a href="https://wa.me/34612345678" class="btn-hero" style="background: #25D366;">
                     WhatsApp
@@ -627,4 +274,5 @@ if ($logueado && $cliente_id) {
         });
     </script>
 </body>
+
 </html>
