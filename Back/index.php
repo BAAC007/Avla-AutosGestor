@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <title>AVLA autosgestor</title>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
