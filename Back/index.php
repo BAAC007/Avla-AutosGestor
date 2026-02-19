@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             height: 100%;
             padding: 0px;
             margin: 0px;
-            background: teal;
+            background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);
         }
 
         body {
@@ -39,23 +39,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex-direction: column;
             gap: 20px;
             padding: 40px;
-            background: white;
+            background: #5e6065c6;
             justify-content: center;
             align-items: center;
-            width: 150px;
-            height: 150px;
+            border-radius: 10%;
+            width: 250px;
+            height: 250px;
+        }
+
+        form h1{
+            color: white;
         }
 
         form input {
             width: 100%;
             padding: 10px;
             box-sizing: border-box;
+            border-radius: 10px;
         }
     </style>
 </head>
 
 <body>
     <form method="POST">
+        <h1>Avla ADMINS</h1>
+
         <input type="text" name="usuario" placeholder="usuario">
         <input type="password" name="contrasena" placeholder="contraseña">
         <input type="submit">
