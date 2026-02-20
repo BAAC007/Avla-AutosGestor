@@ -1,10 +1,15 @@
 <?php
 // ⚠️ IMPORTANTE: Usa esta ruta para incluir tu db.php existente
-require_once '../Back/inc/db.php';
+require_once dirname(__DIR__) . '/Back/db.php';
 
 session_start();
 $mensaje = '';
 $error = '';
+
+// Validar que $conexion exista
+if (!isset($conexion) || !$conexion) {
+    die("❌ Error: No hay conexión a la base de datos");
+}
 
 // Procesar login si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,18 +20,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($dni_nie) || empty($contrasena)) {
         $error = "Por favor, complete todos los campos";
     } else {
-        try {
-            // ✅ Usa la conexión ya configurada en db.php
-            $stmt = $pdo->prepare("
-                SELECT id, nombre, contrasena, email 
-                FROM cliente 
-                WHERE DNI_NIE = :dni_nie 
-                LIMIT 1
-            ");
+        // ✅ Preparar sentencia con MySQLi (usando ? en vez de :dni_nie)
+        $stmt = $conexion->prepare("
+            SELECT id, nombre, contrasena, email 
+            FROM cliente 
+            WHERE DNI_NIE = ? 
+            LIMIT 1
+        ");
 
-            $stmt->execute(['dni_nie' => $dni_nie]);
-            $cliente = $stmt->fetch();
+        if ($stmt) {
+            // Bind del parámetro: "s" = string
+            $stmt->bind_param("s", $dni_nie);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            $cliente = $resultado->fetch_assoc();
+            $stmt->close();
 
+            // Verificar credenciales
             if ($cliente && password_verify($contrasena, $cliente['contrasena'])) {
                 // Login exitoso
                 $_SESSION['cliente_id'] = $cliente['id'];
@@ -35,14 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['logueado'] = true;
 
                 // Redirigir al dashboard del cliente
-                header('Location: ../Back/dashboard.php'); // ¡Cambia esto si tienes otro dashboard!
+                header('Location: ../Back/dashboard.php');
                 exit();
             } else {
                 $error = "DNI/NIE o contraseña incorrectos";
             }
-        } catch (PDOException $e) {
+        } else {
             $error = "Error en el sistema. Intente nuevamente.";
-            error_log("Error login: " . $e->getMessage());
+            error_log("Error login (MySQLi prepare): " . $conexion->error);
         }
     }
 }

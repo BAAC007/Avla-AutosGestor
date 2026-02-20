@@ -1,30 +1,43 @@
 <?php
 session_start();
-require_once '../Back/inc/db.php';
+require_once dirname(__DIR__) . '/Back/db.php';
 
-// Obtener vehículos disponibles (público)
-try {
-    $stmt = $pdo->query("
-        SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado,
-               m.nombre as marca_nombre,
-               mo.nombre as modelo_nombre,
-               mo.tipo as modelo_tipo
-        FROM vehiculo v
-        INNER JOIN marca m ON v.marca_id = m.id
-        INNER JOIN modelo mo ON v.modelo_id = mo.id
-        WHERE v.estado IN ('nuevo', 'usado')
-        ORDER BY v.fecha_ingreso DESC
-        LIMIT 12
-    ");
-    $vehiculos = $stmt->fetchAll();
+// Validar que $conexion exista
+if (!isset($conexion) || !$conexion) {
+    die("❌ Error: No hay conexión a la base de datos");
+}
 
-    // Contar total de vehículos
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM vehiculo WHERE estado IN ('nuevo', 'usado')");
-    $total_vehiculos = $stmt->fetch()['total'];
-} catch (PDOException $e) {
-    $vehiculos = [];
-    $total_vehiculos = 0;
-    error_log("Error cargando vehículos: " . $e->getMessage());
+$vehiculos = [];
+$total_vehiculos = 0;
+
+// Obtener vehículos disponibles (público) - CONVERTIDO A MYSQLI
+$sql = "
+    SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado,
+           m.nombre as marca_nombre,
+           mo.nombre as modelo_nombre,
+           mo.tipo as modelo_tipo
+    FROM vehiculo v
+    INNER JOIN marca m ON v.marca_id = m.id
+    INNER JOIN modelo mo ON v.modelo_id = mo.id
+    WHERE v.estado IN ('nuevo', 'usado')
+    ORDER BY v.fecha_ingreso DESC
+    LIMIT 12
+";
+
+$resultado = $conexion->query($sql);
+if ($resultado) {
+    while ($fila = $resultado->fetch_assoc()) {
+        $vehiculos[] = $fila;
+    }
+} else {
+    error_log("Error cargando vehículos: " . $conexion->error);
+}
+
+// Contar total de vehículos
+$sql_count = "SELECT COUNT(*) as total FROM vehiculo WHERE estado IN ('nuevo', 'usado')";
+$resultado_count = $conexion->query($sql_count);
+if ($resultado_count) {
+    $total_vehiculos = $resultado_count->fetch_assoc()['total'];
 }
 
 // Verificar si el usuario está logueado
@@ -32,19 +45,23 @@ $logueado = isset($_SESSION['logueado']) && $_SESSION['logueado'] === true;
 $cliente_nombre = $_SESSION['cliente_nombre'] ?? 'Cliente';
 $cliente_id = $_SESSION['cliente_id'] ?? null;
 
-// Si está logueado, obtener sus estadísticas
+// Si está logueado, obtener sus estadísticas - CONVERTIDO A MYSQLI
 $mis_compras = 0;
 if ($logueado && $cliente_id) {
-    try {
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*) as total 
-            FROM venta 
-            WHERE cliente_id = :cliente_id AND estado = 'completada'
-        ");
-        $stmt->execute(['cliente_id' => $cliente_id]);
-        $mis_compras = $stmt->fetch()['total'];
-    } catch (PDOException $e) {
-        error_log("Error cargando compras: " . $e->getMessage());
+    $stmt = $conexion->prepare("
+        SELECT COUNT(*) as total 
+        FROM venta 
+        WHERE cliente_id = ? AND estado = 'completada'
+    ");
+    
+    if ($stmt) {
+        $stmt->bind_param("i", $cliente_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $mis_compras = $res->fetch_assoc()['total'];
+        $stmt->close();
+    } else {
+        error_log("Error cargando compras: " . $conexion->error);
     }
 }
 ?>

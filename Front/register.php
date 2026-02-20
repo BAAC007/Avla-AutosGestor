@@ -1,8 +1,13 @@
 <?php
 session_start();
-require_once '../Back/inc/db.php';
+require_once dirname(__DIR__) . '/Back/db.php';
 $mensaje = '';
 $error = '';
+
+// Validar que $conexion exista
+if (!isset($conexion) || !$conexion) {
+    die("❌ Error: No hay conexión a la base de datos");
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
@@ -30,31 +35,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!filter_var($email_real, FILTER_VALIDATE_EMAIL)) {
         $error = "Por favor ingresa un email válido";
     } else {
+        // ✅ Iniciar transacción con MySQLi
+        $conexion->begin_transaction();
+        
         try {
-            // Iniciar transacción
-            $pdo->beginTransaction();
-            
             // Paso 1: Verificar si el usuario ya existe
-            $stmt = $pdo->prepare("SELECT id FROM cliente WHERE usuario = :usuario");
-            $stmt->execute(['usuario' => $usuario]);
-            if ($stmt->fetch()) {
+            $stmt = $conexion->prepare("SELECT id FROM cliente WHERE usuario = ?");
+            $stmt->bind_param("s", $usuario);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            
+            if ($resultado->fetch_assoc()) {
                 $error = "Este nombre de usuario ya está en uso. Elige otro.";
-                $pdo->rollBack();
+                $conexion->rollback();
+                $stmt->close();
             } else {
+                $stmt->close();
+                
                 // Paso 2: Verificar DNI/NIE duplicado
-                $stmt = $pdo->prepare("SELECT id FROM cliente WHERE DNI_NIE = :dni_nie");
-                $stmt->execute(['dni_nie' => $dni_nie]);
-                if ($stmt->fetch()) {
+                $stmt = $conexion->prepare("SELECT id FROM cliente WHERE DNI_NIE = ?");
+                $stmt->bind_param("s", $dni_nie);
+                $stmt->execute();
+                $resultado = $stmt->get_result();
+                
+                if ($resultado->fetch_assoc()) {
                     $error = "Este DNI/NIE ya está registrado";
-                    $pdo->rollBack();
+                    $conexion->rollback();
+                    $stmt->close();
                 } else {
+                    $stmt->close();
+                    
                     // Paso 3: Verificar email duplicado
-                    $stmt = $pdo->prepare("SELECT id FROM cliente WHERE email = :email");
-                    $stmt->execute(['email' => $email_real]);
-                    if ($stmt->fetch()) {
+                    $stmt = $conexion->prepare("SELECT id FROM cliente WHERE email = ?");
+                    $stmt->bind_param("s", $email_real);
+                    $stmt->execute();
+                    $resultado = $stmt->get_result();
+                    
+                    if ($resultado->fetch_assoc()) {
                         $error = "Este email ya está registrado";
-                        $pdo->rollBack();
+                        $conexion->rollback();
+                        $stmt->close();
                     } else {
+                        $stmt->close();
+                        
                         // Paso 4: Hashear contraseña
                         $contrasena_hash = password_hash($clave, PASSWORD_DEFAULT);
                         
@@ -62,32 +85,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $nombre_completo = trim($nombre . ' ' . $apellidos);
                         
                         // Paso 6: Insertar cliente con TODOS los campos
-                        $stmt = $pdo->prepare("
+                        $stmt = $conexion->prepare("
                             INSERT INTO cliente (nombre, usuario, contrasena, DNI_NIE, email, telefono) 
-                            VALUES (:nombre, :usuario, :contrasena, :dni_nie, :email, :telefono)
+                            VALUES (?, ?, ?, ?, ?, ?)
                         ");
                         
-                        $stmt->execute([
-                            'nombre' => $nombre_completo,
-                            'usuario' => $usuario,
-                            'contrasena' => $contrasena_hash,
-                            'dni_nie' => $dni_nie,
-                            'email' => $email_real,
-                            'telefono' => $telefono
-                        ]);
+                        // Bind de 6 parámetros: todos strings = "ssssss"
+                        $stmt->bind_param("ssssss", $nombre_completo, $usuario, $contrasena_hash, $dni_nie, $email_real, $telefono);
                         
-                        $pdo->commit();
-                        $mensaje = "¡Registro exitoso! Ya puedes iniciar sesión";
-                        
-                        // Limpiar campos después del registro exitoso
-                        $nombre = $apellidos = $usuario = $dni_nie = $email_real = $telefono = '';
+                        if ($stmt->execute()) {
+                            $conexion->commit();
+                            $mensaje = "¡Registro exitoso! Ya puedes iniciar sesión";
+                            
+                            // Limpiar campos después del registro exitoso
+                            $nombre = $apellidos = $usuario = $dni_nie = $email_real = $telefono = '';
+                        } else {
+                            $conexion->rollback();
+                            $error = "Error al registrar. Intente nuevamente.";
+                            error_log("Registro error (INSERT): " . $conexion->error);
+                        }
+                        $stmt->close();
                     }
                 }
             }
-        } catch (PDOException $e) {
-            $pdo->rollBack();
+        } catch (Exception $e) {
+            $conexion->rollback();
             $error = "Error al registrar. Intente nuevamente.";
-            error_log("Registro error: " . $e->getMessage());
+            error_log("Registro error (Exception): " . $e->getMessage());
         }
     }
 }
