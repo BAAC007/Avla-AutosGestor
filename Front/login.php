@@ -1,5 +1,4 @@
 <?php
-// ⚠️ IMPORTANTE: Usa esta ruta para incluir tu db.php existente
 require_once dirname(__DIR__) . '/Back/db.php';
 
 session_start();
