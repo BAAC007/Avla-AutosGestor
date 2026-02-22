@@ -25,11 +25,36 @@
      <button>Buzon Cliente</button>
      <button>Promociones</button>
      <button>si?</button>
-     <button><a href="index.php">Logout from admin</a></button>
-     <button><a href="../Front/index.php">Ver sitio (Frontend)</a></button>
+     <button onclick="window.location.href='index.php'">Salir de admin</button>
+     <button onclick="window.location.href='../Front/index.php'">Ver sitio (Frontend)</button>
    </nav>
    <main>
      <?php
+      // ✅ Mensajes de ERROR
+      if (isset($_GET['error'])) {
+        echo "<div class='alerta error'>";
+        $errores = [
+          'id_invalido' => '❌ ID de vehículo no válido',
+          'eliminacion_fallida' => '❌ No se pudo eliminar el vehículo',
+          'tiene_pruebas_manejo' => '⚠️ No se puede eliminar: este vehículo tiene pruebas de manejo registradas',
+          'tiene_registros_relacionados' => '⚠️ No se puede eliminar: el vehículo tiene registros asociados',
+        ];
+        echo htmlspecialchars($errores[$_GET['error']] ?? '❌ Ocurrió un error');
+        echo "</div>";
+      }
+
+      // ✅ Mensajes de ÉXITO (agrega esto)
+      if (isset($_GET['msg'])) {
+        echo "<div class='alerta exito'>";
+        $mensajes = [
+          'vehiculo_eliminado' => '✅ Vehículo eliminado correctamente',
+          'vehiculo_creado' => '✅ Vehículo registrado exitosamente',
+          'vehiculo_actualizado' => '✅ Vehículo actualizado correctamente',
+        ];
+        echo htmlspecialchars($mensajes[$_GET['msg']] ?? '✅ Operación exitosa');
+        echo "</div>";
+      }
+
       // Esto se conoce como router (enrutador) /////////////
       if (isset($_GET['accion'])) {
         if ($_GET['accion'] == "nuevo") {
@@ -43,7 +68,10 @@
         include "inc/read/leer.php";
       }
       ?>
-     <a href="?accion=nuevo" id="nuevo">+</a>
+     <!-- ✅ Solo mostrar botón + en la vista principal (cuando NO hay ?accion) -->
+     <?php if (!isset($_GET['accion'])): ?>
+       <a href="?accion=nuevo" id="nuevo">+</a>
+     <?php endif; ?>
    </main>
  </body>
 

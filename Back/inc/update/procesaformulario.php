@@ -1,0 +1,1 @@
+header("Location: ../../escritorio.php?msg=vehiculo_actualizado");
