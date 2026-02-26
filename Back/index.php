@@ -55,12 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h1>AVLA Admin</h1>
 
             <div class="controlformulario">
-                <label>Usuario</label>
-                <input type="text" name="usuario" required autofocus>
+                <input type="text" name="usuario" placeholder="Usuario" required autofocus>
             </div>
             <div class="controlformulario">
-                <label>Contraseña</label>
-                <input type="password" name="contrasena" required>
+                <input type="password" name="contrasena" placeholder="Constraseña" required>
             </div>
             <button type="submit">Ingresar</button>
         </form>
