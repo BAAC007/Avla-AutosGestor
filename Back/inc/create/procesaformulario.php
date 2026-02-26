@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 // Incluir conexión
 include dirname(__DIR__, 2) . "/db.php";
 
-// ✅ Definir ruta base absoluta
+// Definir ruta base absoluta
 $base_url = '/mi_area/Proyectos/Avila-AutosGestor/Back/';
 
 // Validar que se recibieron datos

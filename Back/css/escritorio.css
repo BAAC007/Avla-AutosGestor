@@ -48,7 +48,9 @@ nav h2 {
   font-weight: 600;
 }
 
-nav button {
+/* ✅ Botones del nav (usar <button> O <a>, no ambos) */
+nav button,
+nav .nav-link {
   background: #2d3a45;
   border: none;
   color: white;
@@ -58,18 +60,13 @@ nav button {
   cursor: pointer;
   transition: background 0.2s ease;
   font-size: 14px;
-}
-
-nav button:hover {
-  background: #3a4a57;
-}
-
-/* Fix para links dentro de botones del nav */
-nav button a {
-  color: inherit;
   text-decoration: none;
   display: block;
-  width: 100%;
+}
+
+nav button:hover,
+nav .nav-link:hover {
+  background: #3a4a57;
 }
 
 nav a {
@@ -120,15 +117,20 @@ main h3 {
 }
 
 /* ===== TABLE ===== */
-table {
+/* ✅ Envuelve tu tabla en <div class="table-container"> para border-radius */
+.table-container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  border-collapse: collapse;
-  border: 1px solid #d1d5db;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
 }
 
 table th {
@@ -194,28 +196,32 @@ table td:last-child {
 }
 
 /* ===== FLOATING BUTTON (Nuevo) ===== */
+/* ✅ Definición única, sin !important */
 #nuevo {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 50px;
-  height: 50px;
+  bottom: 30px;
+  right: 30px;
+  width: 56px;
+  height: 56px;
   background: #0f766e;
   color: white;
   border-radius: 50%;
-  font-size: 28px;
+  font-size: 32px;
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  transition: background 0.2s ease, transform 0.1s ease;
-  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  transition: all 0.3s ease;
+  line-height: 1;
 }
 
 #nuevo:hover {
   background: #115e59;
-  transform: scale(1.05);
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 #nuevo:active {
@@ -302,94 +308,8 @@ form input[type="submit"]:hover {
   margin: 4px 0;
 }
 
-/* ===== MENSAJES/ALERTAS (Opcional para feedback) ===== */
-.alerta {
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  text-align: center;
-  font-weight: 500;
-}
-
-.alerta.exito {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-}
-
-.alerta.error {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  body {
-    flex-direction: column;
-  }
-
-  nav {
-    flex: 0 0 auto;
-    height: auto;
-    position: relative;
-    padding: 16px;
-  }
-
-  main {
-    padding: 16px;
-  }
-
-  table {
-    font-size: 14px;
-    display: block;
-    overflow-x: auto;
-  }
-
-  table th,
-  table td {
-    padding: 8px 6px;
-  }
-
-  main h1 {
-    font-size: 24px;
-    margin: 0 0 16px 0;
-  }
-}
-/* ===== BOTÓN FLOTANTE NUEVO ===== */
-#nuevo {
-  position: fixed !important;
-  bottom: 30px !important;
-  right: 30px !important;
-  width: 56px !important;
-  height: 56px !important;
-  background: #0f766e !important;
-  color: white !important;
-  border-radius: 50% !important;
-  font-size: 32px !important;
-  font-weight: bold !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-decoration: none !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-  z-index: 9999 !important;
-  transition: all 0.3s ease !important;
-  line-height: 1 !important;
-}
-
-#nuevo:hover {
-  background: #115e59 !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.4) !important;
-}
-
-#nuevo:active {
-  transform: scale(0.95) !important;
-}
-
-/* ===== Alertas ===== */
-
+/* ===== MENSAJES/ALERTAS ===== */
+/* ✅ Definición única con animación */
 .alerta {
   padding: 12px 20px;
   border-radius: 6px;
@@ -412,6 +332,57 @@ form input[type="submit"]:hover {
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  nav {
+    flex: 0 0 auto;
+    height: auto;
+    position: relative;
+    padding: 16px;
+  }
+
+  main {
+    padding: 16px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    font-size: 14px;
+    min-width: 600px;
+  }
+
+  table th,
+  table td {
+    padding: 8px 6px;
+  }
+
+  main h1 {
+    font-size: 24px;
+    margin: 0 0 16px 0;
+  }
+
+  #nuevo {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+  }
 }

@@ -43,7 +43,7 @@
         echo "</div>";
       }
 
-      // ✅ Mensajes de ÉXITO (agrega esto)
+      // Mensajes de ÉXITO (agrega esto)
       if (isset($_GET['msg'])) {
         echo "<div class='alerta exito'>";
         $mensajes = [
