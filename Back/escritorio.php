@@ -4,10 +4,13 @@
 
   session_start();
 
-  if (!isset($_SESSION['usuario'])) {
-    header("Location: index.php");
+  // Verificar que exista la sesión de admin
+  if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
+    // No es admin → redirigir al login
+    header("Location: index.php?error=acceso_denegado");
     exit;
   }
+
   ?>
 
  <!doctype html>
@@ -25,12 +28,12 @@
      <button>Buzon Cliente</button>
      <button>Promociones</button>
      <button>si?</button>
-     <button onclick="window.location.href='index.php'">Salir de admin</button>
+     <button onclick="window.location.href='logout.php'">Salir de admin</button>
      <button onclick="window.location.href='../Front/index.php'">Ver sitio (Frontend)</button>
    </nav>
    <main>
      <?php
-      // ✅ Mensajes de ERROR
+      // Mensajes de ERROR
       if (isset($_GET['error'])) {
         echo "<div class='alerta error'>";
         $errores = [
@@ -43,7 +46,7 @@
         echo "</div>";
       }
 
-      // Mensajes de ÉXITO (agrega esto)
+      // Mensajes de ÉXITO
       if (isset($_GET['msg'])) {
         echo "<div class='alerta exito'>";
         $mensajes = [
@@ -55,7 +58,7 @@
         echo "</div>";
       }
 
-      // Esto se conoce como router (enrutador) /////////////
+      // Enrutador
       if (isset($_GET['accion'])) {
         if ($_GET['accion'] == "nuevo") {
           include "inc/create/formulario.php";
@@ -68,7 +71,7 @@
         include "inc/read/leer.php";
       }
       ?>
-     <!-- ✅ Solo mostrar botón + en la vista principal (cuando NO hay ?accion) -->
+     <!-- Solo mostrar botón + en la vista principal -->
      <?php if (!isset($_GET['accion'])): ?>
        <a href="?accion=nuevo" id="nuevo">+</a>
      <?php endif; ?>

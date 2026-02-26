@@ -232,3 +232,19 @@ INSERT INTO prueba_manejo (id, vehiculo_id, cliente_id, fecha, hora, observacion
 (1, 5, 1, '2024-01-10', '10:30:00', 'Cliente interesado, revisar financiación'),
 (2, 4, 2, '2024-01-12', '16:00:00', 'Prueba satisfactoria, espera aprobación de crédito'),
 (3, 2, 3, '2024-01-14', '11:15:00', 'Cliente prefiere color blanco, no disponible');
+
+
+CREATE TABLE IF NOT EXISTS administrador (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario VARCHAR(50) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    nombre_completo VARCHAR(100) NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ultimo_acceso TIMESTAMP NULL,
+    activo TINYINT(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insertar primer admin por defecto (contraseña: admin123)
+INSERT INTO administrador (usuario, contrasena, email, nombre_completo) 
+VALUES ('admin', 'baac123', 'admin@avla.com', 'Administrador Principal');
