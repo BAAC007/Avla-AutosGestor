@@ -309,7 +309,7 @@ form input[type="submit"]:hover {
 }
 
 /* ===== MENSAJES/ALERTAS ===== */
-/* ✅ Definición única con animación */
+/* Definición única con animación */
 .alerta {
   padding: 12px 20px;
   border-radius: 6px;

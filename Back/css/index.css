@@ -24,26 +24,30 @@
 
         form .controlformulario input {
             width: 100%;
-            padding: 10px;
-            border: none;
+            padding: 12px 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
             outline: none;
-            box-shadow: none;
-            background: transparent;
+            background: #f9fafb;
+            font-size: 14px;
+            box-sizing: border-box;
+            margin-top: 4px;
         }
 
         form button {
             width: 100%;
             padding: 12px;
-            background: #0f766e;
+            background: #ee8732;
             color: white;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            margin-top: 15px;
         }
 
         form button:hover {
-            background: #115e59;
+            background: #b65b11;
         }
 
         .error {
