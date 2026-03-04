@@ -203,7 +203,7 @@ table td:last-child {
   right: 30px;
   width: 56px;
   height: 56px;
-  background: #0f766e;
+  background: #ee8732;
   color: white;
   border-radius: 50%;
   font-size: 32px;
@@ -219,7 +219,7 @@ table td:last-child {
 }
 
 #nuevo:hover {
-  background: #115e59;
+  background: #ee8732;
   transform: scale(1.1);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
