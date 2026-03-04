@@ -273,7 +273,7 @@ form select:focus {
 
 form button[type="submit"],
 form input[type="submit"] {
-  background: #0f766e;
+  background: #ee8732;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -287,7 +287,7 @@ form input[type="submit"] {
 
 form button[type="submit"]:hover,
 form input[type="submit"]:hover {
-  background: #115e59;
+  background: #ee8732;
 }
 
 /* ===== LISTA DE CATEGORÍAS ===== */
