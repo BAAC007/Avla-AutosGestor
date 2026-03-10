@@ -1,0 +1,16 @@
+Este proyecto es un gestor de concesionarios de coches
+tiene un panel de usuario y un panel de administrador
+El panel de usuario permite ver los coches que hay en el concesionario
+ademas de poder inciar sesion o crear una cuenta.
+
+El panel de administrador permite iniciar sesion para ingresar
+al escritorio de administrador que muestra los coches que estan en la base
+de datos ademas de tener dos formularios de Crear y Actualizar.
+
+Crear: permite ingresar un coche nuevo con toda la información necesaria.
+
+Actualizar: permite Actualizar la información de los coches que se encuentran
+en la base de datos.
+
+Tambien hay un boton de eliminar el cual elimina el coche seleccionado de la
+base de datos.
