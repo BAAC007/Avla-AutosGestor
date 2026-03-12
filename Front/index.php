@@ -72,14 +72,14 @@ if ($logueado && $cliente_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚗 Concesionario AVLA - Vehículos Nuevos y Usados</title>
+    <title>Concesionario AVLA - Vehículos Nuevos y Usados</title>
     <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
     <!-- Navbar -->
     <div class="navbar">
-        <h1 onclick="window.location.href='index.php'" style="cursor: pointer;" id="avla-racers">🚗 Concesionario AVLA</h1>
+        <h1 onclick="window.location.href='index.php'" style="cursor: pointer;" id="avla-racers">Concesionario AVLA</h1>
         <div class="nav-links">
             <a href="#vehiculos">Vehículos</a>
             <a href="#servicios">Servicios</a>
@@ -90,7 +90,7 @@ if ($logueado && $cliente_id) {
         </div>
         <div class="user-actions">
             <?php if ($logueado): ?>
-                <span>👋 <?php echo htmlspecialchars($cliente_nombre); ?></span>
+                <span><?php echo htmlspecialchars($cliente_nombre); ?></span>
                 <a href="logout.php" class="btn btn-logout">Cerrar Sesión</a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-login">Iniciar Sesión</a>
@@ -157,7 +157,7 @@ if ($logueado && $cliente_id) {
     <!-- Vehículos Section -->
     <div class="section" id="vehiculos" style="background: #fff;">
         <div class="section-title">
-            <h2>🚗 Nuestros Vehículos</h2>
+            <h2>Nuestros Vehículos</h2>
             <p>Descubre nuestra selección de vehículos nuevos y usados</p>
         </div>
 
@@ -216,7 +216,7 @@ if ($logueado && $cliente_id) {
     <!-- Servicios Section -->
     <div class="section" id="servicios" style="background: #f8f9fa;">
         <div class="section-title">
-            <h2>✨ Nuestros Servicios</h2>
+            <h2>Nuestros Servicios</h2>
             <p>Te ofrecemos más que solo vehículos</p>
         </div>
 
@@ -247,7 +247,7 @@ if ($logueado && $cliente_id) {
     <!-- Contacto Section -->
     <div class="section" id="contacto" style="background: white;">
         <div class="section-title">
-            <h2>📞 Contáctanos</h2>
+            <h2>Contáctanos</h2>
             <p>Estamos aquí para ayudarte</p>
         </div>
 
@@ -272,7 +272,7 @@ if ($logueado && $cliente_id) {
     <!-- Footer -->
     <div class="footer">
         <p>&copy; 2026 Concesionario AVLA. Todos los derechos reservados.</p>
-        <p>Diseñado con ❤️ por Bryan Alejandro Avila Castro</p>
+        <p>Diseñado por Bryan Alejandro Avila Castro</p>
     </div>
 
     <script>

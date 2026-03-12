@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['logueado'] = true;
 
                 // Redirigir al dashboard del cliente
-                header('Location: ../Back/dashboard.php');
+                header('Location: ../Front/dashboard.php');
                 exit();
             } else {
                 $error = "Usuario o contraseña incorrectos";
