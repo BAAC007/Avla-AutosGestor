@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" name="usuario" placeholder="Nombre de usuario">
             </div>
             <div id="input">
-                <input type="password" name="clave" placeholder="Clave">
+                <input type="password" name="contrasena" placeholder="Contraseña">
             </div>
             <div class="button">
                 <button type="submit">Iniciar sesion</button>
