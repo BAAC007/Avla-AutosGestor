@@ -12,24 +12,24 @@ if (!isset($conexion) || !$conexion) {
 
 // Procesar login si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dni_nie = $_POST['dni_nie'] ?? '';
+    $usuario = $_POST['usuario'] ?? '';
     $contrasena = $_POST['contrasena'] ?? '';
 
     // Validaciones básicas
-    if (empty($dni_nie) || empty($contrasena)) {
+    if (empty($usuario) || empty($contrasena)) {
         $error = "Por favor, complete todos los campos";
     } else {
         // ✅ Preparar sentencia con MySQLi (usando ? en vez de :dni_nie)
         $stmt = $conexion->prepare("
             SELECT id, nombre, contrasena, email 
             FROM cliente 
-            WHERE DNI_NIE = ? 
+            WHERE usuario = ? 
             LIMIT 1
         ");
 
         if ($stmt) {
             // Bind del parámetro: "s" = string
-            $stmt->bind_param("s", $dni_nie);
+            $stmt->bind_param("s", $usuario);
             $stmt->execute();
             $resultado = $stmt->get_result();
             $cliente = $resultado->fetch_assoc();
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ../Back/dashboard.php');
                 exit();
             } else {
-                $error = "DNI/NIE o contraseña incorrectos";
+                $error = "Usuario o contraseña incorrectos";
             }
         } else {
             $error = "Error en el sistema. Intente nuevamente.";
