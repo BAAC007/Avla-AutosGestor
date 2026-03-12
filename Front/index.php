@@ -85,7 +85,7 @@ if ($logueado && $cliente_id) {
             <a href="#servicios">Servicios</a>
             <a href="#contacto">Contacto</a>
             <?php if ($logueado): ?>
-                <a href="index.php#panel">Mi Panel</a>
+                <a href="#panel">Mi Panel</a>
             <?php endif; ?>
         </div>
         <div class="user-actions">
