@@ -1,4 +1,9 @@
 <?php
+// DEBUG: Mostrar errores en pantalla (SOLO PARA DESARROLLO)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require_once dirname(__DIR__) . '/Back/db.php';
 
@@ -19,27 +24,89 @@ if (!isset($conexion) || !$conexion) {
 
 // Procesar formulario de nueva prueba de manejo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agendar_prueba'])) {
-    $vehiculo_id = $_POST['vehiculo_id'] ?? '';
-    $fecha = $_POST['fecha_prueba'] ?? '';
+    
+    // Asegurar charset correcto en la conexión
+    if (method_exists($conexion, 'set_charset')) {
+        $conexion->set_charset("utf8mb4");
+    }
+    
+    $vehiculo_id = isset($_POST['vehiculo_id']) ? intval($_POST['vehiculo_id']) : 0;
+    $fecha_raw = isset($_POST['fecha_prueba']) ? trim($_POST['fecha_prueba']) : '';
     $hora = $_POST['hora_prueba'] ?? '';
     $observaciones = trim($_POST['observaciones'] ?? '');
     
-    if (empty($vehiculo_id) || empty($fecha) || empty($hora)) {
-        $error = "Por favor completa todos los campos obligatorios";
-    } else {
-        $stmt = $conexion->prepare("
-            INSERT INTO prueba_manejo (cliente_id, vehiculo_id, fecha, hora, observaciones) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->bind_param("iiiss", $cliente_id, $vehiculo_id, $fecha, $hora, $observaciones);
-        
-        if ($stmt->execute()) {
-            $mensaje = "Prueba de manejo agendada exitosamente";
+    // Debug extremo
+    error_log("=== PROCESANDO PRUEBA ===");
+    error_log("fecha_raw: '" . $fecha_raw . "' (len: " . strlen($fecha_raw) . ")");
+    error_log("hora: '" . $hora . "'");
+    error_log("vehiculo_id: " . $vehiculo_id);
+    
+    // Validación estricta de fecha
+    $fecha = '';
+    if (!empty($fecha_raw) && strlen($fecha_raw) === 10 && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha_raw)) {
+        $date_obj = DateTime::createFromFormat('Y-m-d', $fecha_raw);
+        if ($date_obj && $date_obj->format('Y-m-d') === $fecha_raw) {
+            $fecha = $fecha_raw;
+            error_log("Fecha validada: '" . $fecha . "'");
         } else {
-            $error = "Error al agendar la prueba. Intente nuevamente.";
-            error_log("Error agendar prueba: " . $stmt->error);
+            error_log("Fecha inválida (no existe): '" . $fecha_raw . "'");
         }
-        $stmt->close();
+    } else {
+        error_log("Formato de fecha incorrecto: '" . $fecha_raw . "'");
+    }
+    
+    // Validaciones
+    if ($vehiculo_id <= 0) {
+        $error = "Selecciona un vehículo válido";
+    } elseif (empty($fecha)) {
+        $error = "Fecha inválida. Recibido: '" . htmlspecialchars($fecha_raw) . "'";
+    } elseif (empty($hora)) {
+        $error = "La hora es obligatoria";
+    } else {
+        // DEBUG: Mostrar exactamente qué se va a insertar
+        error_log("Valores para INSERT:");
+        error_log("  cliente_id: " . $cliente_id);
+        error_log("  vehiculo_id: " . $vehiculo_id);
+        error_log("  fecha: '" . $fecha . "' (bytes: " . bin2hex($fecha) . ")");
+        error_log("  hora: '" . $hora . "'");
+        error_log("  observaciones: '" . $observaciones . "'");
+        
+        try {
+            // Crear copias explícitas para bind_param (evita problema de referencias)
+            $cid = (int)$cliente_id;
+            $vid = (int)$vehiculo_id;
+            $f = (string)$fecha;
+            $h = (string)$hora;
+            $o = (string)$observaciones;
+            
+            error_log("Valores para bind_param:");
+            error_log("  fecha_bind: '" . $f . "' (hex: " . bin2hex($f) . ")");
+            
+            $stmt = $conexion->prepare("INSERT INTO prueba_manejo (cliente_id, vehiculo_id, fecha, hora, observaciones) VALUES (?, ?, ?, ?, ?)");
+            
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $conexion->error);
+            }
+            
+            // Usar las COPIAS, no las variables originales
+            $stmt->bind_param("iiiss", $cid, $vid, $f, $h, $o);
+            
+            error_log("Ejecutando INSERT con bind_param...");
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+            
+            $mensaje = "Prueba de manejo agendada exitosamente";
+            error_log("INSERT exitoso");
+            $stmt->close();
+            
+        } catch (Exception $e) {
+            $error = "Error: " . $e->getMessage();
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            error_log("Stack: " . $e->getTraceAsString());
+            if (isset($stmt) && $stmt) $stmt->close();
+        }
     }
 }
 
@@ -63,7 +130,6 @@ $stmt->bind_param("i", $cliente_id);
 $stmt->execute();
 $resultado = $stmt->get_result();
 while ($fila = $resultado->fetch_assoc()) {
-    // Obtener nombre de marca y modelo
     $marca_stmt = $conexion->prepare("SELECT nombre FROM marca WHERE id = ?");
     $marca_stmt->bind_param("i", $fila['marca_id']);
     $marca_stmt->execute();
@@ -126,18 +192,21 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concesionario AVLA</title>
     <link rel="stylesheet" href="css/dashboard.css">
+    
+    <!-- Flatpickr CSS - URLs corregidas SIN espacios -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr JS - URLs corregidas SIN espacios -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
-        
-        <!-- Header -->
         <div class="header">
             <h1>Hola, <?php echo htmlspecialchars($cliente['nombre']); ?></h1>
             <a id="index" href="index.php">Volver al inicio</a>
             <a id="logout" href="logout.php">Cerrar sesión</a>
         </div>
         
-        <!-- Mensajes -->
         <?php if ($error): ?>
             <div class="mensaje error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
@@ -158,7 +227,7 @@ $stmt->close();
             <p style="margin-top:15px;"><a href="editar_perfil.php" style="color:#3498db;">Editar mi información</a></p>
         </div>
         
-        <!-- Sección: Mis compras (ventas) -->
+        <!-- Sección: Mis compras -->
         <div class="section">
             <h2>Mis Compras</h2>
             <?php if (empty($ventas)): ?>
@@ -166,32 +235,19 @@ $stmt->close();
             <?php else: ?>
                 <table>
                     <thead>
-                        <tr>
-                            <th>Vehículo</th>
-                            <th>Fecha</th>
-                            <th>Precio</th>
-                            <th>Forma de pago</th>
-                            <th>Estado</th>
-                        </tr>
+                        <tr><th>Vehículo</th><th>Fecha</th><th>Precio</th><th>Forma de pago</th><th>Estado</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach ($ventas as $venta): ?>
                         <tr>
-                            <td>
-                                <?php echo htmlspecialchars($venta['marca_nombre'] . ' ' . $venta['modelo_nombre'] . ' (' . $venta['año'] . ')'); ?>
+                            <td><?php echo htmlspecialchars($venta['marca_nombre'] . ' ' . $venta['modelo_nombre'] . ' (' . $venta['año'] . ')'); ?>
                                 <br><small style="color:#7f8c8d;"><?php echo htmlspecialchars($venta['color']); ?></small>
                             </td>
                             <td><?php echo date('d/m/Y', strtotime($venta['fecha'])); ?></td>
                             <td><?php echo number_format($venta['precio'], 2, ',', '.'); ?> €</td>
                             <td><?php echo htmlspecialchars($venta['forma_pago'] ?? '-'); ?></td>
-                            <td>
-                                <?php if ($venta['estado']): ?>
-                                <span class="estado <?php echo strtolower($venta['estado']); ?>">
-                                    <?php echo htmlspecialchars($venta['estado']); ?>
-                                </span>
-                                <?php else: ?>
-                                <span class="estado pendiente">Sin estado</span>
-                                <?php endif; ?>
+                            <td><?php if ($venta['estado']): ?><span class="estado <?php echo strtolower($venta['estado']); ?>"><?php echo htmlspecialchars($venta['estado']); ?></span>
+                                <?php else: ?><span class="estado pendiente">Sin estado</span><?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -208,18 +264,12 @@ $stmt->close();
             <?php else: ?>
                 <table>
                     <thead>
-                        <tr>
-                            <th>Vehículo</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Observaciones</th>
-                        </tr>
+                        <tr><th>Vehículo</th><th>Fecha</th><th>Hora</th><th>Observaciones</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach ($pruebas as $prueba): ?>
                         <tr>
-                            <td>
-                                <?php echo htmlspecialchars($prueba['marca_nombre'] . ' ' . $prueba['modelo_nombre']); ?>
+                            <td><?php echo htmlspecialchars($prueba['marca_nombre'] . ' ' . $prueba['modelo_nombre']); ?>
                                 <br><small style="color:#7f8c8d;"><?php echo htmlspecialchars($prueba['año']); ?></small>
                             </td>
                             <td><?php echo date('d/m/Y', strtotime($prueba['fecha'])); ?></td>
@@ -251,7 +301,16 @@ $stmt->close();
                 <div class="form-row">
                     <div>
                         <label for="fecha_prueba">Fecha *</label>
-                        <input type="date" name="fecha_prueba" id="fecha_prueba" required min="<?php echo date('Y-m-d'); ?>">
+                        <!-- Input visible: SIN name, solo para mostrar el calendario -->
+                        <input type="text"
+                            id="fecha_prueba"
+                            placeholder="Selecciona una fecha"
+                            required
+                            autocomplete="off"
+                            style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+                        <!-- Input oculto: CON name, este es el que se envía al servidor -->
+                        <input type="hidden" name="fecha_prueba" id="fecha_prueba_hidden">
+                        <small id="fecha_debug" style="color:#7f8c8d;display:block;margin-top:5px;"></small>
                     </div>
                     <div>
                         <label for="hora_prueba">Hora *</label>
@@ -274,19 +333,105 @@ $stmt->close();
                 <button type="submit" name="agendar_prueba">Agendar Prueba</button>
             </form>
         </div>
-        
     </div>
     
     <script>
-        // Validación: no permitir fechas pasadas
-        document.getElementById('fecha_prueba').min = new Date().toISOString().split('T')[0];
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.getElementById('fecha_prueba');
+        const hiddenInput = document.getElementById('fecha_prueba_hidden');
+        const fechaDebug = document.getElementById('fecha_debug');
         
-        // Confirmación antes de enviar
+        function esFechaValida(fecha) {
+            return fecha && fecha.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(fecha);
+        }
+        
+        if (typeof flatpickr !== 'undefined') {
+            const fp = flatpickr("#fecha_prueba", {
+                locale: "es",
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                defaultDate: null,
+                disableMobile: true,
+                allowInput: false,
+                clickOpens: true,
+                
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Actualizar hidden field con el valor formateado
+                    if (hiddenInput) {
+                        hiddenInput.value = dateStr;
+                    }
+                    
+                    // Actualizar debug visual
+                    if (fechaDebug) {
+                        fechaDebug.textContent = 'Seleccionada: ' + dateStr + ' (longitud: ' + dateStr.length + ')';
+                        fechaDebug.style.color = '#27ae60';
+                    }
+                    
+                    console.log('Flatpickr onChange - Fecha:', dateStr, 'Longitud:', dateStr.length);
+                },
+                
+                onClose: function(selectedDates, dateStr, instance) {
+                    // Asegurar que el hidden field tenga el valor al cerrar
+                    if (hiddenInput && dateStr) {
+                        hiddenInput.value = dateStr;
+                    }
+                    console.log('Flatpickr onClose - Valor final:', dateStr);
+                }
+            });
+            
+            // Guardar referencia para debug en consola
+            window.fp_instance = fp;
+            
+        } else {
+            console.error('Flatpickr no está disponible');
+            if (fechaDebug) {
+                fechaDebug.textContent = 'Error: No se pudo cargar el selector de fecha';
+                fechaDebug.style.color = '#e74c3c';
+            }
+        }
+        
+        // Validación antes de enviar el formulario
         document.querySelector('form').addEventListener('submit', function(e) {
+            const fechaValue = hiddenInput ? hiddenInput.value.trim() : '';
+            
+            console.log('=== ANTES DE ENVIAR ===');
+            console.log('Hidden field value:', JSON.stringify(fechaValue));
+            console.log('Longitud:', fechaValue.length);
+            console.log('Input visible value:', fechaInput ? fechaInput.value : '');
+            
+            if (!esFechaValida(fechaValue)) {
+                e.preventDefault();
+                const msg = 'Error: La fecha no tiene formato válido.\n\n' +
+                    'Valor recibido: "' + fechaValue + '"\n' +
+                    'Longitud: ' + fechaValue.length + '\n\n' +
+                    'Formato esperado: AAAA-MM-DD (ej: 2026-03-15)\n\n' +
+                    'Por favor selecciona una fecha del calendario.';
+                alert(msg);
+                if (fechaInput) fechaInput.focus();
+                if (fechaDebug) {
+                    fechaDebug.textContent = 'Fecha inválida - Usa el calendario';
+                    fechaDebug.style.color = '#e74c3c';
+                }
+                return false;
+            }
+            
+            // Confirmación final
             if (!confirm('¿Confirmas que deseas agendar esta prueba de manejo?')) {
                 e.preventDefault();
             }
         });
+        
+        // Bloquear escritura manual en el input visible
+        if (fechaInput) {
+            fechaInput.addEventListener('keydown', function(e) {
+                e.preventDefault();
+                if (fechaInput.click) fechaInput.click();
+            });
+            fechaInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+            });
+        }
+    });
     </script>
 </body>
 </html>
