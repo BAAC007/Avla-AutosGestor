@@ -124,7 +124,7 @@ $stmt->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Concesionario AVLA</title>
+    <title>Concesionario AVLA</title>
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
@@ -133,7 +133,8 @@ $stmt->close();
         <!-- Header -->
         <div class="header">
             <h1>Hola, <?php echo htmlspecialchars($cliente['nombre']); ?></h1>
-            <a href="logout.php">Cerrar sesión</a>
+            <a id="index" href="index.php">Volver al inicio</a>
+            <a id="logout" href="logout.php">Cerrar sesión</a>
         </div>
         
         <!-- Mensajes -->

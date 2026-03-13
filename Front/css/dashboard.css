@@ -26,7 +26,21 @@
             font-size: 1.5rem;
         }
 
-        .header a {
+        .header #index {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 15px;
+            background: #1a8676;
+            border-radius: 4px;
+            margin-left: 52%;
+        }
+
+        .header #index:hover {
+            background: #177567;
+        }
+    
+
+        .header #logout {
             color: #ecf0f1;
             text-decoration: none;
             padding: 8px 15px;
@@ -34,7 +48,7 @@
             border-radius: 4px;
         }
 
-        .header a:hover {
+        .header #logout:hover {
             background: #c0392b;
         }
 
