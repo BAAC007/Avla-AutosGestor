@@ -12,7 +12,7 @@ $total_vehiculos = 0;
 
 // Obtener vehículos disponibles (público) - CONVERTIDO A MYSQLI
 $sql = "
-    SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado,
+    SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen,
            m.nombre as marca_nombre,
            mo.nombre as modelo_nombre,
            mo.tipo as modelo_tipo
@@ -53,7 +53,7 @@ if ($logueado && $cliente_id) {
         FROM venta 
         WHERE cliente_id = ? AND estado = 'completada'
     ");
-    
+
     if ($stmt) {
         $stmt->bind_param("i", $cliente_id);
         $stmt->execute();
@@ -162,16 +162,20 @@ if ($logueado && $cliente_id) {
         </div>
 
         <?php if (count($vehiculos) > 0): ?>
-            <div class="vehiculos-grid">
+
+            <div class="Bryancarrusel">
                 <?php foreach ($vehiculos as $vehiculo): ?>
                     <div class="vehiculo-card">
                         <div class="vehiculo-img">
-                            🚗
+                            <?php if (!empty($vehiculo['imagen'])): ?>
+                                <img src="<?php echo htmlspecialchars($vehiculo['imagen']); ?>" alt="<?php echo htmlspecialchars($vehiculo['marca_nombre'] . ' ' . $vehiculo['modelo_nombre']); ?>">
+                            <?php else: ?>
+                                <span style="font-size:48px;">🚗</span>
+                            <?php endif; ?>
                         </div>
                         <div class="vehiculo-info">
                             <div class="vehiculo-marca"><?php echo htmlspecialchars($vehiculo['marca_nombre']); ?></div>
                             <div class="vehiculo-modelo"><?php echo htmlspecialchars($vehiculo['modelo_nombre']); ?></div>
-
                             <div class="vehiculo-detalles">
                                 <div class="detalle-item">
                                     <span class="detalle-label">Año</span>
@@ -192,16 +196,15 @@ if ($logueado && $cliente_id) {
                                     </span>
                                 </div>
                             </div>
-
                             <div class="vehiculo-precio">
                                 €<?php echo number_format($vehiculo['precio'], 0, ',', '.'); ?>
                             </div>
-
                             <a href="#" class="btn-ver-mas">Ver Detalles</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
+
         <?php else: ?>
             <p style="text-align: center; color: #666;">No hay vehículos disponibles en este momento.</p>
         <?php endif; ?>
@@ -212,7 +215,6 @@ if ($logueado && $cliente_id) {
             </a>
         </div>
     </div>
-
     <!-- Servicios Section -->
     <div class="section" id="servicios" style="background: #f8f9fa;">
         <div class="section-title">
@@ -275,7 +277,163 @@ if ($logueado && $cliente_id) {
         <p>Diseñado por Bryan Alejandro Avila Castro</p>
     </div>
 
+    <style>
+        .Bryancarrusel {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            border-radius: 10px;
+            margin: 0 auto;
+        }
+
+        .Bryancarrusel section {
+            display: flex;
+            flex-direction: row;
+            transition: left 0.5s ease;
+            position: relative;
+            left: 0px;
+        }
+
+        .Bryancarrusel section .vehiculo-card {
+            flex: 0 0 calc(33.333% - 20px);
+            min-width: calc(33.333% - 20px);
+            margin-right: 30px;
+            display: block !important;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .Bryancarrusel section .vehiculo-card:last-child {
+            margin-right: 0;
+        }
+
+        .Bryancarrusel section .vehiculo-card .vehiculo-img {
+            display: block !important;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .Bryancarrusel section .vehiculo-card .vehiculo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .Bryancarrusel section .vehiculo-card .vehiculo-info {
+            display: block !important;
+            padding: 20px;
+        }
+
+        .Bryancarrusel section .vehiculo-card .btn-ver-mas {
+            display: block;
+            margin-top: 15px;
+        }
+
+        .carrusel-nav-btn {
+            border: none;
+            background: white;
+            width: 46px;
+            height: 46px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            font-size: 28px;
+            line-height: 1;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid #0e1c5a;
+            color: #0e1c5a;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .carrusel-nav-btn:hover {
+            background: #0e1c5a;
+            color: white;
+        }
+
+        .carrusel-nav-btn:disabled {
+            opacity: 0.25;
+            cursor: default;
+        }
+
+        .carrusel-nav-btn.btn-prev {
+            left: -20px;
+        }
+
+        .carrusel-nav-btn.btn-next {
+            right: -20px;
+        }
+    </style>
+
     <script>
+        // ── Bryancarrusel adaptado para tarjetas de vehículos ──
+        (function() {
+            var contenedor = document.querySelector('.Bryancarrusel');
+            if (!contenedor) return;
+
+            // Recoger las tarjetas originales y sacarlas del DOM
+            var tarjetas = Array.from(contenedor.querySelectorAll('.vehiculo-card'));
+            tarjetas.forEach(function(t) {
+                t.remove();
+            });
+
+            // Crear el track (section)
+            var track = document.createElement('section');
+            track.style.left = '0px';
+            tarjetas.forEach(function(t) {
+                track.appendChild(t);
+            });
+            contenedor.appendChild(track);
+
+            // Calcular cuántas tarjetas caben (siempre 3 en escritorio)
+            var VISIBLES = 3;
+            var contador = 0; // índice de la tarjeta más a la izquierda visible
+
+            function maxContador() {
+                return Math.max(0, tarjetas.length - VISIBLES);
+            }
+
+            function mover(nuevoContador) {
+                contador = Math.max(0, Math.min(nuevoContador, maxContador()));
+                // El ancho de cada tarjeta + su margen
+                var anchoTarjeta = tarjetas[0].offsetWidth + 30;
+                track.style.left = -(contador * anchoTarjeta) + 'px';
+                btnPrev.disabled = contador === 0;
+                btnNext.disabled = contador >= maxContador();
+            }
+
+            // Botones
+            var btnPrev = document.createElement('button');
+            btnPrev.textContent = '‹';
+            btnPrev.className = 'carrusel-nav-btn btn-prev';
+            btnPrev.setAttribute('aria-label', 'Anterior');
+
+            var btnNext = document.createElement('button');
+            btnNext.textContent = '›';
+            btnNext.className = 'carrusel-nav-btn btn-next';
+            btnNext.setAttribute('aria-label', 'Siguiente');
+
+            btnPrev.onclick = function() {
+                mover(contador - 1);
+            };
+            btnNext.onclick = function() {
+                mover(contador + 1);
+            };
+
+            contenedor.appendChild(btnPrev);
+            contenedor.appendChild(btnNext);
+
+            // Inicializar estado de botones
+            mover(0);
+        })();
+
         // Smooth scroll para los enlaces del navbar
         document.querySelectorAll('.nav-links a').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
