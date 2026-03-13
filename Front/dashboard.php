@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agendar_prueba'])) {
             }
             
             // Usar las COPIAS, no las variables originales
-            $stmt->bind_param("iiiss", $cid, $vid, $f, $h, $o);
+            $stmt->bind_param("iisss", $cid, $vid, $f, $h, $o);
             
             error_log("Ejecutando INSERT con bind_param...");
             
@@ -194,10 +194,7 @@ $stmt->close();
     <link rel="stylesheet" href="css/dashboard.css">
     
     <!-- Flatpickr CSS - URLs corregidas SIN espacios -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Flatpickr JS - URLs corregidas SIN espacios -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -301,16 +298,12 @@ $stmt->close();
                 <div class="form-row">
                     <div>
                         <label for="fecha_prueba">Fecha *</label>
-                        <!-- Input visible: SIN name, solo para mostrar el calendario -->
-                        <input type="text"
+                        <input type="date"
+                            name="fecha_prueba"
                             id="fecha_prueba"
-                            placeholder="Selecciona una fecha"
                             required
-                            autocomplete="off"
+                            min="<?php echo date('Y-m-d'); ?>"
                             style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
-                        <!-- Input oculto: CON name, este es el que se envía al servidor -->
-                        <input type="hidden" name="fecha_prueba" id="fecha_prueba_hidden">
-                        <small id="fecha_debug" style="color:#7f8c8d;display:block;margin-top:5px;"></small>
                     </div>
                     <div>
                         <label for="hora_prueba">Hora *</label>
@@ -335,103 +328,5 @@ $stmt->close();
         </div>
     </div>
     
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const fechaInput = document.getElementById('fecha_prueba');
-        const hiddenInput = document.getElementById('fecha_prueba_hidden');
-        const fechaDebug = document.getElementById('fecha_debug');
-        
-        function esFechaValida(fecha) {
-            return fecha && fecha.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(fecha);
-        }
-        
-        if (typeof flatpickr !== 'undefined') {
-            const fp = flatpickr("#fecha_prueba", {
-                locale: "es",
-                minDate: "today",
-                dateFormat: "Y-m-d",
-                defaultDate: null,
-                disableMobile: true,
-                allowInput: false,
-                clickOpens: true,
-                
-                onChange: function(selectedDates, dateStr, instance) {
-                    // Actualizar hidden field con el valor formateado
-                    if (hiddenInput) {
-                        hiddenInput.value = dateStr;
-                    }
-                    
-                    // Actualizar debug visual
-                    if (fechaDebug) {
-                        fechaDebug.textContent = 'Seleccionada: ' + dateStr + ' (longitud: ' + dateStr.length + ')';
-                        fechaDebug.style.color = '#27ae60';
-                    }
-                    
-                    console.log('Flatpickr onChange - Fecha:', dateStr, 'Longitud:', dateStr.length);
-                },
-                
-                onClose: function(selectedDates, dateStr, instance) {
-                    // Asegurar que el hidden field tenga el valor al cerrar
-                    if (hiddenInput && dateStr) {
-                        hiddenInput.value = dateStr;
-                    }
-                    console.log('Flatpickr onClose - Valor final:', dateStr);
-                }
-            });
-            
-            // Guardar referencia para debug en consola
-            window.fp_instance = fp;
-            
-        } else {
-            console.error('Flatpickr no está disponible');
-            if (fechaDebug) {
-                fechaDebug.textContent = 'Error: No se pudo cargar el selector de fecha';
-                fechaDebug.style.color = '#e74c3c';
-            }
-        }
-        
-        // Validación antes de enviar el formulario
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const fechaValue = hiddenInput ? hiddenInput.value.trim() : '';
-            
-            console.log('=== ANTES DE ENVIAR ===');
-            console.log('Hidden field value:', JSON.stringify(fechaValue));
-            console.log('Longitud:', fechaValue.length);
-            console.log('Input visible value:', fechaInput ? fechaInput.value : '');
-            
-            if (!esFechaValida(fechaValue)) {
-                e.preventDefault();
-                const msg = 'Error: La fecha no tiene formato válido.\n\n' +
-                    'Valor recibido: "' + fechaValue + '"\n' +
-                    'Longitud: ' + fechaValue.length + '\n\n' +
-                    'Formato esperado: AAAA-MM-DD (ej: 2026-03-15)\n\n' +
-                    'Por favor selecciona una fecha del calendario.';
-                alert(msg);
-                if (fechaInput) fechaInput.focus();
-                if (fechaDebug) {
-                    fechaDebug.textContent = 'Fecha inválida - Usa el calendario';
-                    fechaDebug.style.color = '#e74c3c';
-                }
-                return false;
-            }
-            
-            // Confirmación final
-            if (!confirm('¿Confirmas que deseas agendar esta prueba de manejo?')) {
-                e.preventDefault();
-            }
-        });
-        
-        // Bloquear escritura manual en el input visible
-        if (fechaInput) {
-            fechaInput.addEventListener('keydown', function(e) {
-                e.preventDefault();
-                if (fechaInput.click) fechaInput.click();
-            });
-            fechaInput.addEventListener('paste', function(e) {
-                e.preventDefault();
-            });
-        }
-    });
-    </script>
 </body>
 </html>

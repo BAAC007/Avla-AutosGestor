@@ -282,3 +282,35 @@ INSERT INTO prueba_manejo (id, vehiculo_id, cliente_id, fecha, hora, observacion
 -- ✅ Script completado exitosamente
 -- Para verificar: SHOW TABLES; o SELECT COUNT(*) FROM vehiculo;
 -- ============================================================================
+
+--Imagenes para vehículos
+
+-- ============================================================
+-- 1. Añadir columna imagen a la tabla vehiculo
+-- ============================================================
+ALTER TABLE vehiculo ADD COLUMN imagen VARCHAR(500) DEFAULT NULL;
+
+-- ============================================================
+-- 2. Asignar imagen a cada vehículo
+--    (URLs de Unsplash, gratuitas y de alta calidad)
+-- ============================================================
+
+-- id=1: Toyota Corolla 2023 (mantener Unsplash, el enlace de motor.es no era imagen directa)
+UPDATE vehiculo SET imagen = 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&q=80'
+WHERE id = 1 AND modelo_id = 1;
+ 
+-- id=2: Toyota RAV4 2022 (URL oficial Toyota Europe)
+UPDATE vehiculo SET imagen = 'https://scene7.toyota.eu/is/image/toyotaeurope/RAV4_032_PHEV_26_WEB_V2?qlt=80&wid=800&fit=fit,1&resMode=sharp2&fmt=jpeg'
+WHERE id = 2 AND modelo_id = 2;
+ 
+-- id=3: Ford F-150 2023
+UPDATE vehiculo SET imagen = 'https://d2v1gjawtegg5z.cloudfront.net/posts/preview_images/000/015/499/original/2024_Ford_F-150.jpg?1725030127'
+WHERE id = 3 AND modelo_id = 3;
+ 
+-- id=4: BMW Serie 3 2021 (mantener Unsplash)
+UPDATE vehiculo SET imagen = 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80'
+WHERE id = 4 AND modelo_id = 4;
+ 
+-- id=5: Renault Clio 2024
+UPDATE vehiculo SET imagen = 'https://cdn-xy.drivek.com/eyJidWNrZXQiOiJtay13cCIsImtlI6ImI3ODdkNTg1XC91cGxvYWRzXC9zaXRlc1wvMlwvMjAyMFwvMDhcL3JlbmF1bHQtY2xpby1lLXRlY2gtaGlicmlkby5qcGciLCJlZGl0cyI6eyJyZXNpemUiOnsid2lkdGgiOjk2MCwiaGVpZ2h0Ijo1NDAsImZpdCI6ImNvdmVyIn19fQ=='
+WHERE id = 5 AND modelo_id = 5;
