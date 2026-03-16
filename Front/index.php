@@ -1,16 +1,26 @@
 <?php
 session_start();
+
+// Cambio de idioma
+if (isset($_GET['leng']) && in_array($_GET['leng'], ['es', 'en'])) {
+    $_SESSION['leng'] = $_GET['leng'];
+    header('Location: index.php');
+    exit;
+}
+
+// Cargar idioma
+$lang = $_SESSION['leng'] ?? 'es';
+$t = json_decode(file_get_contents("leng/{$lang}.json"), true);
+
 require_once dirname(__DIR__) . '/Back/db.php';
 
-// Validar que $conexion exista
 if (!isset($conexion) || !$conexion) {
-    die("❌ Error: No hay conexión a la base de datos");
+    die("Error: No hay conexion a la base de datos");
 }
 
 $vehiculos = [];
 $total_vehiculos = 0;
 
-// Obtener vehículos disponibles (público) - CONVERTIDO A MYSQLI
 $sql = "
     SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen,
            m.nombre as marca_nombre,
@@ -29,148 +39,145 @@ if ($resultado) {
     while ($fila = $resultado->fetch_assoc()) {
         $vehiculos[] = $fila;
     }
-} else {
-    error_log("Error cargando vehículos: " . $conexion->error);
 }
 
-// Contar total de vehículos
 $sql_count = "SELECT COUNT(*) as total FROM vehiculo WHERE estado IN ('nuevo', 'usado')";
 $resultado_count = $conexion->query($sql_count);
 if ($resultado_count) {
     $total_vehiculos = $resultado_count->fetch_assoc()['total'];
 }
 
-// Verificar si el usuario está logueado
 $logueado = isset($_SESSION['logueado']) && $_SESSION['logueado'] === true;
 $cliente_nombre = $_SESSION['cliente_nombre'] ?? 'Cliente';
 $cliente_id = $_SESSION['cliente_id'] ?? null;
 
-// Si está logueado, obtener sus estadísticas - CONVERTIDO A MYSQLI
 $mis_compras = 0;
 if ($logueado && $cliente_id) {
-    $stmt = $conexion->prepare("
-        SELECT COUNT(*) as total 
-        FROM venta 
-        WHERE cliente_id = ? AND estado = 'completada'
-    ");
-
+    $stmt = $conexion->prepare("SELECT COUNT(*) as total FROM venta WHERE cliente_id = ? AND estado = 'completada'");
     if ($stmt) {
         $stmt->bind_param("i", $cliente_id);
         $stmt->execute();
         $res = $stmt->get_result();
         $mis_compras = $res->fetch_assoc()['total'];
         $stmt->close();
-    } else {
-        error_log("Error cargando compras: " . $conexion->error);
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="<?php echo $lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concesionario AVLA - Vehículos Nuevos y Usados</title>
+    <title>Concesionario AVLA</title>
     <link rel="stylesheet" href="css/index.css">
+    <style>
+        .leng-selector { display:flex; align-items:center; gap:8px; font-size:13px; }
+        .leng-selector a { color:rgba(255,255,255,0.6); text-decoration:none; font-weight:600; transition:color .2s; }
+        .leng-selector a:hover { color:white; }
+        .leng-selector a.active { color:white; }
+        .leng-selector span { color:rgba(255,255,255,0.3); }
+    </style>
 </head>
-
 <body>
+
     <!-- Navbar -->
     <div class="navbar">
-        <h1 onclick="window.location.href='index.php'" style="cursor: pointer;" id="avla-racers">Concesionario AVLA</h1>
+        <h1 onclick="window.location.href='index.php'" style="cursor:pointer;" id="avla-racers">Concesionario AVLA</h1>
         <div class="nav-links">
-            <a href="#vehiculos">Vehículos</a>
-            <a href="#servicios">Servicios</a>
-            <a href="#contacto">Contacto</a>
+            <a href="#vehiculos"><?php echo $t['nav_vehiculos']; ?></a>
+            <a href="#servicios"><?php echo $t['nav_servicios']; ?></a>
+            <a href="#contacto"><?php echo $t['nav_contacto']; ?></a>
             <?php if ($logueado): ?>
-                <a href="#panel">Mi Panel</a>
+                <a href="#panel"><?php echo $t['nav_mi_panel']; ?></a>
             <?php endif; ?>
         </div>
         <div class="user-actions">
+            <div class="leng-selector">
+                <a href="?leng=es" <?php echo $lang === 'es' ? 'class="active"' : ''; ?>>ES</a>
+                <span>|</span>
+                <a href="?leng=en" <?php echo $lang === 'en' ? 'class="active"' : ''; ?>>EN</a>
+            </div>
             <?php if ($logueado): ?>
                 <span><?php echo htmlspecialchars($cliente_nombre); ?></span>
-                <a href="logout.php" class="btn btn-logout">Cerrar Sesión</a>
+                <a href="logout.php" class="btn btn-logout"><?php echo $t['nav_cerrar']; ?></a>
             <?php else: ?>
-                <a href="login.php" class="btn btn-login">Iniciar Sesión</a>
-                <a href="register.php" class="btn btn-login" style="background: #ffffff;">Registrarse</a>
+                <a href="login.php" class="btn btn-login"><?php echo $t['nav_iniciar']; ?></a>
+                <a href="register.php" class="btn btn-login" style="background:#ffffff;"><?php echo $t['nav_registrar']; ?></a>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Hero Section -->
+    <!-- Hero -->
     <div class="hero">
-        <h2>Encuentra tu próximo vehículo</h2>
-        <p>Tenemos una amplia selección de vehículos nuevos y usados para satisfacer todas tus necesidades</p>
-        <a href="#vehiculos" class="btn-hero">Ver Vehículos</a>
+        <h2><?php echo $t['hero_titulo']; ?></h2>
+        <p><?php echo $t['hero_subtitulo']; ?></p>
+        <a href="#vehiculos" class="btn-hero"><?php echo $t['hero_btn_ver']; ?></a>
         <?php if (!$logueado): ?>
-            <a href="register.php" class="btn-hero" style="background: #d1831c;">Crear Cuenta</a>
+            <a href="register.php" class="btn-hero" style="background:#d1831c;"><?php echo $t['hero_btn_cuenta']; ?></a>
         <?php endif; ?>
     </div>
 
-    <!-- Stats Section -->
+    <!-- Stats -->
     <div class="stats">
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-number"><?php echo $total_vehiculos; ?></div>
-                <div class="stat-label">Vehículos Disponibles</div>
+                <div class="stat-label"><?php echo $t['stats_disponibles']; ?></div>
             </div>
             <div class="stat-item">
                 <div class="stat-number">15+</div>
-                <div class="stat-label">Marcas</div>
+                <div class="stat-label"><?php echo $t['stats_marcas']; ?></div>
             </div>
             <div class="stat-item">
                 <div class="stat-number">5</div>
-                <div class="stat-label">Años de Experiencia</div>
+                <div class="stat-label"><?php echo $t['stats_experiencia']; ?></div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">⭐ 4.8</div>
-                <div class="stat-label">Calificación</div>
+                <div class="stat-number">&#11088; 4.8</div>
+                <div class="stat-label"><?php echo $t['stats_calificacion']; ?></div>
             </div>
         </div>
     </div>
 
-    <!-- Panel de Usuario (solo visible si está logueado) -->
+    <!-- Panel usuario -->
     <?php if ($logueado): ?>
         <div class="section" id="panel">
             <div class="panel-usuario">
-                <h3>👋 Bienvenido, <?php echo htmlspecialchars($cliente_nombre); ?>!</h3>
+                <h3><?php echo $t['panel_bienvenido']; ?><?php echo htmlspecialchars($cliente_nombre); ?>!</h3>
                 <div class="panel-stats">
                     <div class="panel-stat">
                         <div class="panel-stat-number"><?php echo $mis_compras; ?></div>
-                        <div class="panel-stat-label">Compras Realizadas</div>
+                        <div class="panel-stat-label"><?php echo $t['panel_compras']; ?></div>
                     </div>
                     <div class="panel-stat">
                         <div class="panel-stat-number">0</div>
-                        <div class="panel-stat-label">Pruebas de Manejo</div>
+                        <div class="panel-stat-label"><?php echo $t['panel_pruebas']; ?></div>
                     </div>
                     <div class="panel-stat">
-                        <div class="panel-stat-number">⭐</div>
-                        <div class="panel-stat-label">Tu Calificación</div>
+                        <div class="panel-stat-number">&#11088;</div>
+                        <div class="panel-stat-label"><?php echo $t['panel_calificacion']; ?></div>
                     </div>
                 </div>
             </div>
         </div>
     <?php endif; ?>
 
-    <!-- Vehículos Section -->
-    <div class="section" id="vehiculos" style="background: #fff;">
+    <!-- Vehiculos -->
+    <div class="section" id="vehiculos" style="background:#fff;">
         <div class="section-title">
-            <h2>Nuestros Vehículos</h2>
-            <p>Descubre nuestra selección de vehículos nuevos y usados</p>
+            <h2><?php echo $t['vehiculos_titulo']; ?></h2>
+            <p><?php echo $t['vehiculos_subtitulo']; ?></p>
         </div>
-
         <?php if (count($vehiculos) > 0): ?>
-
             <div class="Bryancarrusel">
                 <?php foreach ($vehiculos as $vehiculo): ?>
                     <div class="vehiculo-card">
                         <div class="vehiculo-img">
                             <?php if (!empty($vehiculo['imagen'])): ?>
-                                <img src="<?php echo htmlspecialchars($vehiculo['imagen']); ?>" alt="<?php echo htmlspecialchars($vehiculo['marca_nombre'] . ' ' . $vehiculo['modelo_nombre']); ?>">
+                                <img src="<?php echo htmlspecialchars($vehiculo['imagen']); ?>"
+                                     alt="<?php echo htmlspecialchars($vehiculo['marca_nombre'] . ' ' . $vehiculo['modelo_nombre']); ?>">
                             <?php else: ?>
-                                <span style="font-size:48px;">🚗</span>
+                                <span style="font-size:48px;">&#x1F697;</span>
                             <?php endif; ?>
                         </div>
                         <div class="vehiculo-info">
@@ -178,283 +185,153 @@ if ($logueado && $cliente_id) {
                             <div class="vehiculo-modelo"><?php echo htmlspecialchars($vehiculo['modelo_nombre']); ?></div>
                             <div class="vehiculo-detalles">
                                 <div class="detalle-item">
-                                    <span class="detalle-label">Año</span>
+                                    <span class="detalle-label"><?php echo $t['detalle_anio']; ?></span>
                                     <span class="detalle-value"><?php echo htmlspecialchars($vehiculo['año']); ?></span>
                                 </div>
                                 <div class="detalle-item">
-                                    <span class="detalle-label">Kilómetros</span>
+                                    <span class="detalle-label"><?php echo $t['detalle_km']; ?></span>
                                     <span class="detalle-value"><?php echo number_format($vehiculo['kilometraje'], 0, ',', '.'); ?> km</span>
                                 </div>
                                 <div class="detalle-item">
-                                    <span class="detalle-label">Color</span>
+                                    <span class="detalle-label"><?php echo $t['detalle_color']; ?></span>
                                     <span class="detalle-value"><?php echo htmlspecialchars($vehiculo['color']); ?></span>
                                 </div>
                                 <div class="detalle-item">
-                                    <span class="detalle-label">Estado</span>
-                                    <span class="detalle-value" style="color: <?php echo $vehiculo['estado'] === 'nuevo' ? '#4CAF50' : '#FF9800'; ?>">
-                                        <?php echo $vehiculo['estado'] === 'nuevo' ? 'Nuevo' : 'Usado'; ?>
+                                    <span class="detalle-label"><?php echo $t['detalle_estado']; ?></span>
+                                    <span class="detalle-value" style="color:<?php echo $vehiculo['estado'] === 'nuevo' ? '#4CAF50' : '#FF9800'; ?>">
+                                        <?php echo $vehiculo['estado'] === 'nuevo' ? $t['estado_nuevo'] : $t['estado_usado']; ?>
                                     </span>
                                 </div>
                             </div>
                             <div class="vehiculo-precio">
-                                €<?php echo number_format($vehiculo['precio'], 0, ',', '.'); ?>
+                                &euro;<?php echo number_format($vehiculo['precio'], 0, ',', '.'); ?>
                             </div>
-                            <a href="vehiculo_detalle.php?id=<?php echo $vehiculo['id']; ?>" class="btn-ver-mas">Ver Detalles</a>
+                            <a href="vehiculo_detalle.php?id=<?php echo $vehiculo['id']; ?>" class="btn-ver-mas">
+                                <?php echo $t['vehiculos_btn_detalles']; ?>
+                            </a>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-
         <?php else: ?>
-            <p style="text-align: center; color: #666;">No hay vehículos disponibles en este momento.</p>
+            <p style="text-align:center;color:#666;"><?php echo $t['vehiculos_no_hay']; ?></p>
         <?php endif; ?>
-
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="vehiculos.php" class="btn-hero" style="background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);">
-                Ver Todos los Vehículos
+        <div style="text-align:center;margin-top:40px;">
+            <a href="vehiculos.php" class="btn-hero" style="background:linear-gradient(135deg,#0e1c5a 0%,#2d2f3b 100%);">
+                <?php echo $t['vehiculos_btn_todos']; ?>
             </a>
         </div>
     </div>
-    <!-- Servicios Section -->
-    <div class="section" id="servicios" style="background: #f8f9fa;">
+
+    <!-- Servicios -->
+    <div class="section" id="servicios" style="background:#f8f9fa;">
         <div class="section-title">
-            <h2>Nuestros Servicios</h2>
-            <p>Te ofrecemos más que solo vehículos</p>
+            <h2><?php echo $t['servicios_titulo']; ?></h2>
+            <p><?php echo $t['servicios_subtitulo']; ?></p>
         </div>
         <div class="servicios-grid">
             <div class="stat-item">
-                <div class="stat-number">
-                    <img src="imagenes/financiacion.png">
-                </div>
-                <div class="stat-label">Financiación</div>
-                <p>Opciones flexibles de pago</p>
+                <div class="stat-number"><img src="imagenes/financiacion.png"></div>
+                <div class="stat-label"><?php echo $t['servicio_financiacion']; ?></div>
+                <p><?php echo $t['servicio_financiacion_desc']; ?></p>
             </div>
             <div class="stat-item">
-                <div class="stat-number">
-                    <img src="imagenes/prueba_manejo.png">
-                </div>
-                <div class="stat-label">Pruebas de Manejo</div>
-                <p>Prueba antes de comprar</p>
+                <div class="stat-number"><img src="imagenes/prueba_manejo.png"></div>
+                <div class="stat-label"><?php echo $t['servicio_pruebas']; ?></div>
+                <p><?php echo $t['servicio_pruebas_desc']; ?></p>
             </div>
             <div class="stat-item">
-                <div class="stat-number">
-                    <img src="imagenes/garantia.png">
-                </div>
-                <div class="stat-label">Garantía</div>
-                <p>Garantía en todos los vehículos</p>
+                <div class="stat-number"><img src="imagenes/garantia.png"></div>
+                <div class="stat-label"><?php echo $t['servicio_garantia']; ?></div>
+                <p><?php echo $t['servicio_garantia_desc']; ?></p>
             </div>
             <div class="stat-item">
-                <div class="stat-number">
-                    <img src="imagenes/asistencia.png">
-                </div>
-                <div class="stat-label">Asistencia 24/7</div>
-                <p>Soporte cuando lo necesites</p>
+                <div class="stat-number"><img src="imagenes/asistencia.png"></div>
+                <div class="stat-label"><?php echo $t['servicio_asistencia']; ?></div>
+                <p><?php echo $t['servicio_asistencia_desc']; ?></p>
             </div>
         </div>
     </div>
 
-    <!-- Contacto Section -->
-    <div class="section" id="contacto" style="background: white;">
+    <!-- Contacto -->
+    <div class="section" id="contacto" style="background:white;">
         <div class="section-title">
-            <h2>Contáctanos</h2>
-            <p>Estamos aquí para ayudarte</p>
+            <h2><?php echo $t['contacto_titulo']; ?></h2>
+            <p><?php echo $t['contacto_subtitulo']; ?></p>
         </div>
-
-        <div style="max-width: 600px; margin: 0 auto; text-align: center;">
-            <p style="font-size: 18px; margin-bottom: 20px;">
-                <strong>📍 Dirección:</strong> Calle del Concesionario 123, Valencia<br>
-                <strong>📱 Teléfono:</strong> +34 96 123 45 67<br>
-                <strong>📧 Email:</strong> info@concesionarioavla.com
+        <div style="max-width:600px;margin:0 auto;text-align:center;">
+            <p style="font-size:18px;margin-bottom:20px;">
+                <strong><?php echo $t['contacto_direccion']; ?>:</strong> Calle del Concesionario 123, Valencia<br>
+                <strong><?php echo $t['contacto_telefono']; ?>:</strong> +34 96 123 45 67<br>
+                <strong><?php echo $t['contacto_email']; ?>:</strong> info@concesionarioavla.com
             </p>
-
-            <div style="margin-top: 30px;">
-                <a href="https://wa.me/34612345678" class="btn-hero" style="background: #25D366;">
-                    WhatsApp
-                </a>
-                <a href="mailto:info@concesionarioavla.com" class="btn-hero" style="background: #EA4335;">
-                    Email
-                </a>
+            <div style="margin-top:30px;">
+                <a href="https://wa.me/34612345678" class="btn-hero" style="background:#25D366;">WhatsApp</a>
+                <a href="mailto:info@concesionarioavla.com" class="btn-hero" style="background:#EA4335;">Email</a>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
     <div class="footer">
-        <p>&copy; 2026 Concesionario AVLA. Todos los derechos reservados.</p>
-        <p>Diseñado por Bryan Alejandro Avila Castro</p>
+        <p>&copy; 2026 Concesionario AVLA. <?php echo $t['footer_derechos']; ?></p>
+        <p><?php echo $t['footer_disenado']; ?></p>
     </div>
 
     <style>
-        .Bryancarrusel {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-            border-radius: 10px;
-            margin: 0 auto;
-        }
-
-        .Bryancarrusel section {
-            display: flex;
-            flex-direction: row;
-            transition: left 0.5s ease;
-            position: relative;
-            left: 0px;
-        }
-
-        .Bryancarrusel section .vehiculo-card {
-            flex: 0 0 calc(33.333% - 20px);
-            min-width: calc(33.333% - 20px);
-            margin-right: 30px;
-            display: block !important;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .Bryancarrusel section .vehiculo-card:last-child {
-            margin-right: 0;
-        }
-
-        .Bryancarrusel section .vehiculo-card .vehiculo-img {
-            display: block !important;
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-        }
-
-        .Bryancarrusel section .vehiculo-card .vehiculo-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .Bryancarrusel section .vehiculo-card .vehiculo-info {
-            display: block !important;
-            padding: 20px;
-        }
-
-        .Bryancarrusel section .vehiculo-card .btn-ver-mas {
-            display: block;
-            margin-top: 15px;
-        }
-
-        .carrusel-nav-btn {
-            border: none;
-            background: white;
-            width: 46px;
-            height: 46px;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            border-radius: 50%;
-            font-size: 28px;
-            line-height: 1;
-            text-align: center;
-            cursor: pointer;
-            z-index: 10;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            border: 2px solid #0e1c5a;
-            color: #0e1c5a;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .carrusel-nav-btn:hover {
-            background: #0e1c5a;
-            color: white;
-        }
-
-        .carrusel-nav-btn:disabled {
-            opacity: 0.25;
-            cursor: default;
-        }
-
-        .carrusel-nav-btn.btn-prev {
-            left: -20px;
-        }
-
-        .carrusel-nav-btn.btn-next {
-            right: -20px;
-        }
+        .Bryancarrusel { width:100%; overflow:hidden; position:relative; border-radius:10px; margin:0 auto; }
+        .Bryancarrusel section { display:flex; flex-direction:row; transition:left 0.5s ease; position:relative; left:0px; }
+        .Bryancarrusel section .vehiculo-card { flex:0 0 calc(33.333% - 20px); min-width:calc(33.333% - 20px); margin-right:30px; display:block !important; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        .Bryancarrusel section .vehiculo-card:last-child { margin-right:0; }
+        .Bryancarrusel section .vehiculo-card .vehiculo-img { display:block !important; width:100%; height:200px; overflow:hidden; }
+        .Bryancarrusel section .vehiculo-card .vehiculo-img img { width:100%; height:100%; object-fit:cover; display:block; }
+        .Bryancarrusel section .vehiculo-card .vehiculo-info { display:block !important; padding:20px; }
+        .Bryancarrusel section .vehiculo-card .btn-ver-mas { display:block; margin-top:15px; }
+        .carrusel-nav-btn { border:none; background:white; width:46px; height:46px; position:absolute; top:50%; transform:translateY(-50%); border-radius:50%; font-size:28px; line-height:1; text-align:center; cursor:pointer; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,0.2); border:2px solid #0e1c5a; color:#0e1c5a; transition:background 0.2s,color 0.2s; }
+        .carrusel-nav-btn:hover { background:#0e1c5a; color:white; }
+        .carrusel-nav-btn:disabled { opacity:0.25; cursor:default; }
+        .carrusel-nav-btn.btn-prev { left:-20px; }
+        .carrusel-nav-btn.btn-next { right:-20px; }
     </style>
 
     <script>
-        // ── Bryancarrusel para tarjetas de vehículos ──
         (function() {
             var contenedor = document.querySelector('.Bryancarrusel');
             if (!contenedor) return;
-
-            // Recoger las tarjetas originales y sacarlas del DOM
             var tarjetas = Array.from(contenedor.querySelectorAll('.vehiculo-card'));
-            tarjetas.forEach(function(t) {
-                t.remove();
-            });
-
-            // Crear el track (section)
+            tarjetas.forEach(function(t) { t.remove(); });
             var track = document.createElement('section');
             track.style.left = '0px';
-            tarjetas.forEach(function(t) {
-                track.appendChild(t);
-            });
+            tarjetas.forEach(function(t) { track.appendChild(t); });
             contenedor.appendChild(track);
-
-            // Calcular cuántas tarjetas caben (siempre 3 en escritorio)
-            var VISIBLES = 3;
-            var contador = 0; // índice de la tarjeta más a la izquierda visible
-
-            function maxContador() {
-                return Math.max(0, tarjetas.length - VISIBLES);
-            }
-
-            function mover(nuevoContador) {
-                contador = Math.max(0, Math.min(nuevoContador, maxContador()));
-                // El ancho de cada tarjeta + su margen
-                var anchoTarjeta = tarjetas[0].offsetWidth + 30;
-                track.style.left = -(contador * anchoTarjeta) + 'px';
+            var VISIBLES = 3, contador = 0;
+            function maxContador() { return Math.max(0, tarjetas.length - VISIBLES); }
+            function mover(n) {
+                contador = Math.max(0, Math.min(n, maxContador()));
+                track.style.left = -(contador * (tarjetas[0].offsetWidth + 30)) + 'px';
                 btnPrev.disabled = contador === 0;
                 btnNext.disabled = contador >= maxContador();
             }
-
-            // Botones
             var btnPrev = document.createElement('button');
-            btnPrev.textContent = '‹';
+            btnPrev.textContent = '\u2039';
             btnPrev.className = 'carrusel-nav-btn btn-prev';
-            btnPrev.setAttribute('aria-label', 'Anterior');
-
             var btnNext = document.createElement('button');
-            btnNext.textContent = '›';
+            btnNext.textContent = '\u203a';
             btnNext.className = 'carrusel-nav-btn btn-next';
-            btnNext.setAttribute('aria-label', 'Siguiente');
-
-            btnPrev.onclick = function() {
-                mover(contador - 1);
-            };
-            btnNext.onclick = function() {
-                mover(contador + 1);
-            };
-
+            btnPrev.onclick = function() { mover(contador - 1); };
+            btnNext.onclick = function() { mover(contador + 1); };
             contenedor.appendChild(btnPrev);
             contenedor.appendChild(btnNext);
-
-            // Inicializar estado de botones
             mover(0);
         })();
 
-        // Smooth scroll para los enlaces del navbar
-        document.querySelectorAll('.nav-links a').forEach(anchor => {
+        document.querySelectorAll('.nav-links a').forEach(function(anchor) {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
         });
     </script>
 </body>
-
 </html>
