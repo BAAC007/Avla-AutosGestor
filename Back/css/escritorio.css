@@ -23,13 +23,13 @@ body {
 
 /* ===== SIDEBAR ===== */
 nav {
-  flex: 0 0 250px;
+  flex: 0 0 220px;
   background: #1f2933;
   color: white;
-  padding: 24px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 6px;
   height: 100vh;
   position: sticky;
   top: 0;
@@ -43,23 +43,22 @@ nav h2 {
   padding: 12px;
   text-align: center;
   border-radius: 4px;
-  margin: 0 0 10px 0;
-  font-size: 18px;
+  margin: 0 0 14px 0;
+  font-size: 16px;
   font-weight: 600;
 }
 
-/* ✅ Botones del nav (usar <button> O <a>, no ambos) */
 nav button,
 nav .nav-link {
   background: #2d3a45;
   border: none;
   color: white;
-  padding: 12px;
+  padding: 11px 14px;
   text-align: left;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.2s ease;
-  font-size: 14px;
+  font-size: 13px;
   text-decoration: none;
   display: block;
 }
@@ -69,14 +68,33 @@ nav .nav-link:hover {
   background: #3a4a57;
 }
 
-nav a {
-  color: #9cc4ff;
-  text-decoration: none;
-  font-size: 14px;
+/* Empuja los botones de abajo al fondo */
+.nav-spacer {
+  flex: 1;
 }
 
-nav a:hover {
-  text-decoration: underline;
+/* Boton Ver sitio - tono neutro */
+nav .nav-link-secondary {
+  background: transparent;
+  border: 1px solid #3a4a57;
+  color: #9cc4ff;
+  font-size: 13px;
+}
+
+nav .nav-link-secondary:hover {
+  background: #2d3a45;
+}
+
+/* Boton Salir - tono rojo */
+nav .nav-link-danger {
+  background: transparent;
+  border: 1px solid #7f1d1d;
+  color: #f87171;
+  font-size: 13px;
+}
+
+nav .nav-link-danger:hover {
+  background: #450a0a;
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -117,7 +135,6 @@ main h3 {
 }
 
 /* ===== TABLE ===== */
-/* ✅ Envuelve tu tabla en <div class="table-container"> para border-radius */
 .table-container {
   width: 100%;
   max-width: 1200px;
@@ -196,32 +213,30 @@ table td:last-child {
 }
 
 /* ===== FLOATING BUTTON (Nuevo) ===== */
-/* ✅ Definición única, sin !important */
 #nuevo {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 56px;
-  height: 56px;
+  bottom: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
   background: #ee8732;
   color: white;
   border-radius: 50%;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 14px rgba(238, 135, 50, 0.5);
   z-index: 9999;
-  transition: all 0.3s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
   line-height: 1;
 }
 
 #nuevo:hover {
-  background: #ee8732;
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(238, 135, 50, 0.6);
 }
 
 #nuevo:active {
@@ -287,10 +302,10 @@ form input[type="submit"] {
 
 form button[type="submit"]:hover,
 form input[type="submit"]:hover {
-  background: #ee8732;
+  opacity: 0.9;
 }
 
-/* ===== LISTA DE CATEGORÍAS ===== */
+/* ===== LISTA DE CATEGORIAS ===== */
 #lista_categorias {
   text-align: center;
   padding: 10px;
@@ -309,7 +324,6 @@ form input[type="submit"]:hover {
 }
 
 /* ===== MENSAJES/ALERTAS ===== */
-/* Definición única con animación */
 .alerta {
   padding: 12px 20px;
   border-radius: 6px;
@@ -336,6 +350,7 @@ form input[type="submit"]:hover {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

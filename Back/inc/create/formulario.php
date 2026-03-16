@@ -14,7 +14,7 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
     <!-- SECCIÓN 1: DATOS DEL VEHÍCULO                      -->
     <!-- ══════════════════════════════════════════════════ -->
     <div class="form-seccion">
-        <h3 class="form-seccion-titulo">🚗 Datos del Vehículo</h3>
+        <h3 class="form-seccion-titulo"> Datos del Vehículo</h3>
 
         <div class="controlformulario">
             <label for="marca_id">Marca</label>
@@ -83,7 +83,7 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
     <!-- SECCIÓN 2: ACCESORIOS DEL VEHÍCULO                 -->
     <!-- ══════════════════════════════════════════════════ -->
     <div class="form-seccion">
-        <h3 class="form-seccion-titulo">🔧 Accesorios (opcional)</h3>
+        <h3 class="form-seccion-titulo"> Accesorios (opcional)</h3>
         <p class="form-seccion-desc">Selecciona los accesorios que incluye este vehículo e indica el precio de instalación de cada uno.</p>
 
         <div id="accesorios-lista">
@@ -121,7 +121,7 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
     <!-- SECCIÓN 3: PRUEBAS DE MANEJO                       -->
     <!-- ══════════════════════════════════════════════════ -->
     <div class="form-seccion">
-        <h3 class="form-seccion-titulo">🏁 Pruebas de Manejo (opcional)</h3>
+        <h3 class="form-seccion-titulo"> Pruebas de Manejo (opcional)</h3>
         <p class="form-seccion-desc">Programa las pruebas de manejo para este vehículo. Puedes añadir varias.</p>
 
         <div id="pruebas-container">
