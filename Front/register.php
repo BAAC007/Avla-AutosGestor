@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="register-container">
-        <h1>📝 Registro de Cliente</h1>
+        <h1> Registro</h1>
         
         <?php if ($error): ?>
             <div class="mensaje error"><?php echo htmlspecialchars($error); ?></div>
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="input">
                 <input type="text" name="usuario" placeholder="Nombre de usuario *" required 
                        value="<?php echo htmlspecialchars($usuario ?? ''); ?>" minlength="4" maxlength="50">
-                <small class="form-note">⚠️ Solo letras, números y guión bajo. Mínimo 4 caracteres.</small>
+                <small class="form-note"> Solo letras, números y guión bajo. Mínimo 4 caracteres.</small>
             </div>
             <div id="input">
                 <input type="text" name="dni_nie" placeholder="DNI/NIE *" required 
@@ -158,16 +158,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="input">
                 <input type="email" name="email_real" placeholder="Email *" required 
                        value="<?php echo htmlspecialchars($email_real ?? ''); ?>">
-                <small class="form-note">📧 Recibirás ofertas y facturas en este email</small>
+                <small class="form-note"> Recibirás ofertas y facturas en este email</small>
             </div>
             <div id="input">
                 <input type="tel" name="telefono" placeholder="Teléfono *" required 
-                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9}" tittle="Introduce 9 digitos" maxlength="9">
-                       <small class="forma">📞 Ejemplo 623258947</small>
+                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9}" title="Introduce 9 digitos" maxlength="9">
+                       <small class="form-note"> Ejemplo 623258947</small>
             </div>
             <div id="input">
                 <input type="password" name="clave" placeholder="Contraseña *" required minlength="8">
-                <small class="form-note">🔒 Mínimo 8 caracteres</small>
+                <small class="form-note"> Mínimo 8 caracteres</small>
             </div>
             <div id="input">
                 <input type="password" name="clave_confirm" placeholder="Confirmar contraseña *" required minlength="8">

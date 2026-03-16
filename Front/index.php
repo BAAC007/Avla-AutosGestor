@@ -199,7 +199,7 @@ if ($logueado && $cliente_id) {
                             <div class="vehiculo-precio">
                                 €<?php echo number_format($vehiculo['precio'], 0, ',', '.'); ?>
                             </div>
-                            <a href="#" class="btn-ver-mas">Ver Detalles</a>
+                            <a href="vehiculo_detalle.php?id=<?php echo $vehiculo['id']; ?>" class="btn-ver-mas">Ver Detalles</a>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -221,27 +221,34 @@ if ($logueado && $cliente_id) {
             <h2>Nuestros Servicios</h2>
             <p>Te ofrecemos más que solo vehículos</p>
         </div>
-
-        <div class="stats-grid">
+        <div class="servicios-grid">
             <div class="stat-item">
-                <div class="stat-number">🔧</div>
+                <div class="stat-number">
+                    <img src="imagenes/financiacion.png">
+                </div>
                 <div class="stat-label">Financiación</div>
-                <p style="color: #666; margin-top: 10px;">Opciones flexibles de pago</p>
+                <p>Opciones flexibles de pago</p>
             </div>
             <div class="stat-item">
-                <div class="stat-number">🚗</div>
+                <div class="stat-number">
+                    <img src="imagenes/prueba_manejo.png">
+                </div>
                 <div class="stat-label">Pruebas de Manejo</div>
-                <p style="color: #666; margin-top: 10px;">Prueba antes de comprar</p>
+                <p>Prueba antes de comprar</p>
             </div>
             <div class="stat-item">
-                <div class="stat-number">⭐</div>
+                <div class="stat-number">
+                    <img src="imagenes/garantia.png">
+                </div>
                 <div class="stat-label">Garantía</div>
-                <p style="color: #666; margin-top: 10px;">Garantía en todos los vehículos</p>
+                <p>Garantía en todos los vehículos</p>
             </div>
             <div class="stat-item">
-                <div class="stat-number">📞</div>
+                <div class="stat-number">
+                    <img src="imagenes/asistencia.png">
+                </div>
                 <div class="stat-label">Asistencia 24/7</div>
-                <p style="color: #666; margin-top: 10px;">Soporte cuando lo necesites</p>
+                <p>Soporte cuando lo necesites</p>
             </div>
         </div>
     </div>
@@ -373,7 +380,7 @@ if ($logueado && $cliente_id) {
     </style>
 
     <script>
-        // ── Bryancarrusel adaptado para tarjetas de vehículos ──
+        // ── Bryancarrusel para tarjetas de vehículos ──
         (function() {
             var contenedor = document.querySelector('.Bryancarrusel');
             if (!contenedor) return;
