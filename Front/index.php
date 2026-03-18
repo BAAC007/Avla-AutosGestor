@@ -65,24 +65,45 @@ if ($logueado && $cliente_id) {
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $lang; ?>">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concesionario AVLA</title>
     <link rel="stylesheet" href="css/index.css">
     <style>
-        .leng-selector { display:flex; align-items:center; gap:8px; font-size:13px; }
-        .leng-selector a { color:rgba(255,255,255,0.6); text-decoration:none; font-weight:600; transition:color .2s; }
-        .leng-selector a:hover { color:white; }
-        .leng-selector a.active { color:white; }
-        .leng-selector span { color:rgba(255,255,255,0.3); }
+        .leng-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .leng-selector a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color .2s;
+        }
+
+        .leng-selector a:hover {
+            color: white;
+        }
+
+        .leng-selector a.active {
+            color: white;
+        }
+
+        .leng-selector span {
+            color: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Navbar -->
     <div class="navbar">
-        <h1 onclick="window.location.href='index.php'" style="cursor:pointer;" id="avla-racers">Concesionario AVLA</h1>
         <div class="nav-links">
             <a href="#vehiculos"><?php echo $t['nav_vehiculos']; ?></a>
             <a href="#servicios"><?php echo $t['nav_servicios']; ?></a>
@@ -91,6 +112,11 @@ if ($logueado && $cliente_id) {
                 <a href="#panel"><?php echo $t['nav_mi_panel']; ?></a>
             <?php endif; ?>
         </div>
+
+        <a href="index.php" class="navbar-logo">
+            <img src="imagenes/Avlalogo.png" alt="AVLA">
+        </a>
+
         <div class="user-actions">
             <div class="leng-selector">
                 <a href="?leng=es" <?php echo $lang === 'es' ? 'class="active"' : ''; ?>>ES</a>
@@ -98,7 +124,7 @@ if ($logueado && $cliente_id) {
                 <a href="?leng=en" <?php echo $lang === 'en' ? 'class="active"' : ''; ?>>EN</a>
             </div>
             <?php if ($logueado): ?>
-                <span><?php echo htmlspecialchars($cliente_nombre); ?></span>
+                <a href="dashboard.php" class="btn-nombre-usuario"><?php echo htmlspecialchars($cliente_nombre); ?></a>
                 <a href="logout.php" class="btn btn-logout"><?php echo $t['nav_cerrar']; ?></a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-login"><?php echo $t['nav_iniciar']; ?></a>
@@ -175,7 +201,7 @@ if ($logueado && $cliente_id) {
                         <div class="vehiculo-img">
                             <?php if (!empty($vehiculo['imagen'])): ?>
                                 <img src="<?php echo htmlspecialchars($vehiculo['imagen']); ?>"
-                                     alt="<?php echo htmlspecialchars($vehiculo['marca_nombre'] . ' ' . $vehiculo['modelo_nombre']); ?>">
+                                    alt="<?php echo htmlspecialchars($vehiculo['marca_nombre'] . ' ' . $vehiculo['modelo_nombre']); ?>">
                             <?php else: ?>
                                 <span style="font-size:48px;">&#x1F697;</span>
                             <?php endif; ?>
@@ -279,19 +305,98 @@ if ($logueado && $cliente_id) {
     </div>
 
     <style>
-        .Bryancarrusel { width:100%; overflow:hidden; position:relative; border-radius:10px; margin:0 auto; }
-        .Bryancarrusel section { display:flex; flex-direction:row; transition:left 0.5s ease; position:relative; left:0px; }
-        .Bryancarrusel section .vehiculo-card { flex:0 0 calc(33.333% - 20px); min-width:calc(33.333% - 20px); margin-right:30px; display:block !important; background:white; border-radius:10px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        .Bryancarrusel section .vehiculo-card:last-child { margin-right:0; }
-        .Bryancarrusel section .vehiculo-card .vehiculo-img { display:block !important; width:100%; height:200px; overflow:hidden; }
-        .Bryancarrusel section .vehiculo-card .vehiculo-img img { width:100%; height:100%; object-fit:cover; display:block; }
-        .Bryancarrusel section .vehiculo-card .vehiculo-info { display:block !important; padding:20px; }
-        .Bryancarrusel section .vehiculo-card .btn-ver-mas { display:block; margin-top:15px; }
-        .carrusel-nav-btn { border:none; background:white; width:46px; height:46px; position:absolute; top:50%; transform:translateY(-50%); border-radius:50%; font-size:28px; line-height:1; text-align:center; cursor:pointer; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,0.2); border:2px solid #0e1c5a; color:#0e1c5a; transition:background 0.2s,color 0.2s; }
-        .carrusel-nav-btn:hover { background:#0e1c5a; color:white; }
-        .carrusel-nav-btn:disabled { opacity:0.25; cursor:default; }
-        .carrusel-nav-btn.btn-prev { left:-20px; }
-        .carrusel-nav-btn.btn-next { right:-20px; }
+        .Bryancarrusel {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            border-radius: 10px;
+            margin: 0 auto;
+        }
+
+        .Bryancarrusel section {
+            display: flex;
+            flex-direction: row;
+            transition: left 0.5s ease;
+            position: relative;
+            left: 0px;
+        }
+
+        .Bryancarrusel section .vehiculo-card {
+            flex: 0 0 calc(33.333% - 20px);
+            min-width: calc(33.333% - 20px);
+            margin-right: 30px;
+            display: block !important;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .Bryancarrusel section .vehiculo-card:last-child {
+            margin-right: 0;
+        }
+
+        .Bryancarrusel section .vehiculo-card .vehiculo-img {
+            display: block !important;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .Bryancarrusel section .vehiculo-card .vehiculo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .Bryancarrusel section .vehiculo-card .vehiculo-info {
+            display: block !important;
+            padding: 20px;
+        }
+
+        .Bryancarrusel section .vehiculo-card .btn-ver-mas {
+            display: block;
+            margin-top: 15px;
+        }
+
+        .carrusel-nav-btn {
+            border: none;
+            background: white;
+            width: 46px;
+            height: 46px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            font-size: 28px;
+            line-height: 1;
+            text-align: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid #0e1c5a;
+            color: #0e1c5a;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .carrusel-nav-btn:hover {
+            background: #0e1c5a;
+            color: white;
+        }
+
+        .carrusel-nav-btn:disabled {
+            opacity: 0.25;
+            cursor: default;
+        }
+
+        .carrusel-nav-btn.btn-prev {
+            left: -20px;
+        }
+
+        .carrusel-nav-btn.btn-next {
+            right: -20px;
+        }
     </style>
 
     <script>
@@ -299,13 +404,22 @@ if ($logueado && $cliente_id) {
             var contenedor = document.querySelector('.Bryancarrusel');
             if (!contenedor) return;
             var tarjetas = Array.from(contenedor.querySelectorAll('.vehiculo-card'));
-            tarjetas.forEach(function(t) { t.remove(); });
+            tarjetas.forEach(function(t) {
+                t.remove();
+            });
             var track = document.createElement('section');
             track.style.left = '0px';
-            tarjetas.forEach(function(t) { track.appendChild(t); });
+            tarjetas.forEach(function(t) {
+                track.appendChild(t);
+            });
             contenedor.appendChild(track);
-            var VISIBLES = 3, contador = 0;
-            function maxContador() { return Math.max(0, tarjetas.length - VISIBLES); }
+            var VISIBLES = 3,
+                contador = 0;
+
+            function maxContador() {
+                return Math.max(0, tarjetas.length - VISIBLES);
+            }
+
             function mover(n) {
                 contador = Math.max(0, Math.min(n, maxContador()));
                 track.style.left = -(contador * (tarjetas[0].offsetWidth + 30)) + 'px';
@@ -318,8 +432,12 @@ if ($logueado && $cliente_id) {
             var btnNext = document.createElement('button');
             btnNext.textContent = '\u203a';
             btnNext.className = 'carrusel-nav-btn btn-next';
-            btnPrev.onclick = function() { mover(contador - 1); };
-            btnNext.onclick = function() { mover(contador + 1); };
+            btnPrev.onclick = function() {
+                mover(contador - 1);
+            };
+            btnNext.onclick = function() {
+                mover(contador + 1);
+            };
             contenedor.appendChild(btnPrev);
             contenedor.appendChild(btnNext);
             mover(0);
@@ -329,9 +447,13 @@ if ($logueado && $cliente_id) {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 var target = document.querySelector(this.getAttribute('href'));
-                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (target) target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             });
         });
     </script>
 </body>
+
 </html>
