@@ -1,7 +1,7 @@
 <?php
 include dirname(__DIR__, 2) . "/db.php";
 
-$base_url = '/mi_area/Proyectos/Avila-AutosGestor/Back/';
+$base_url = '/Back/';
 
 // Validar ID
 if (!isset($_POST['id_vehiculo']) || !is_numeric($_POST['id_vehiculo'])) {

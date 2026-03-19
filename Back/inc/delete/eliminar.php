@@ -3,7 +3,7 @@
 include dirname(__DIR__, 2) . "/db.php";
 
 // ✅ Define la ruta base ABSOLUTA desde el DocumentRoot
-$base_url = '/mi_area/Proyectos/Avila-AutosGestor/Back/';
+$base_url = '/Back/';
 
 // Validar ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {

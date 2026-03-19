@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 include dirname(__DIR__, 2) . "/db.php";
 
 // Definir ruta base absoluta
-$base_url = '/mi_area/Proyectos/Avila-AutosGestor/Back/';
+$base_url = '/Back/';
 
 // Validar método
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
