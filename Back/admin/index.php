@@ -1,18 +1,15 @@
 <?php
 // Back/admin/index.php - Login del panel
-
 session_start();
-require_once __DIR__ . '/../db.php'; // Ajusta la ruta según tu estructura
+require_once __DIR__ . '/../db.php';
 
 $error = '';
 
-// Si ya está logueado, redirigir al escritorio
 if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true) {
     header("Location: escritorio.php");
     exit;
 }
 
-// Procesar login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = trim($_POST['usuario'] ?? '');
     $contrasena = $_POST['contrasena'] ?? '';
@@ -41,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login Admin - AVLA Autosgestor</title>
-    <link rel="stylesheet" href="/css/index.css">
+    <!-- ✅ Ruta absoluta desde la raíz web -->
+    <link rel="stylesheet" href="/Front/css/index.css">
 </head>
 <body>
     <div class="login-box">
