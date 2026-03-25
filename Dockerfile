@@ -14,10 +14,8 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
 
 # Configurar VirtualHost COMPLETO
 RUN echo '<VirtualHost *:80>\n\
-    # DocumentRoot principal es Front\n\
     DocumentRoot /var/www/html/Front\n\
     \n\
-    # Configurar Front\n\
     <Directory /var/www/html/Front>\n\
         Options -Indexes +FollowSymLinks\n\
         AllowOverride All\n\
@@ -25,11 +23,9 @@ RUN echo '<VirtualHost *:80>\n\
         DirectoryIndex index.php\n\
     </Directory>\n\
     \n\
-    # Alias para API - Back\n\
     Alias /api /var/www/html/Back\n\
     Alias /Back /var/www/html/Back\n\
     \n\
-    # Configurar Back\n\
     <Directory /var/www/html/Back>\n\
         Options -Indexes +FollowSymLinks\n\
         AllowOverride All\n\
@@ -37,12 +33,11 @@ RUN echo '<VirtualHost *:80>\n\
         DirectoryIndex index.php\n\
     </Directory>\n\
     \n\
-    # Rewrite rules\n\
     RewriteEngine On\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-# Permisos
-RUN chown -R www-www-data /var/www/html && \
+# Permisos (usuario CORRECTO: www-data)
+RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
 
 EXPOSE 80
