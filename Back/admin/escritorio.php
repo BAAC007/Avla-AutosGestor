@@ -17,7 +17,7 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION[
 <head>
   <title>AVLA autosgestor</title>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="../css/escritorio.css">
+  <link rel="stylesheet" href="/Back/css/escritorio.css">
 </head>
 
 <body>
@@ -63,14 +63,14 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION[
     // Enrutador
     if (isset($_GET['accion'])) {
       if ($_GET['accion'] == "nuevo") {
-        include "inc/create/formulario.php";
+        include "../inc/create/formulario.php";
       } else if ($_GET['accion'] == "eliminar") {
-        include "inc/delete/eliminar.php";
+        include "../inc/delete/eliminar.php";
       } else if ($_GET['accion'] == "editar") {
-        include "inc/update/formularioactualizar.php";
+        include "../inc/update/formularioactualizar.php";
       }
     } else {
-      include "inc/read/leer.php";
+      include "../inc/read/leer.php";
     }
     ?>
 
