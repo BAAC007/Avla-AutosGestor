@@ -2,8 +2,16 @@ FROM --platform=linux/amd64 php:8.1-apache
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
-# Copiar TODO el proyecto
+# Copiar TODO
 COPY . /var/www/html/
+
+# DEBUG: Ver qué se copió
+RUN echo "=== FILES IN /var/www/html/ ===" && \
+    ls -la /var/www/html/ && \
+    echo "=== FILES IN /var/www/html/Back/ ===" && \
+    (ls -la /var/www/html/Back/ 2>&1 || echo "ERROR: Back folder not found!") && \
+    echo "=== FILES IN /var/www/html/Back/admin/ ===" && \
+    (ls -la /var/www/html/Back/admin/ 2>&1 || echo "ERROR: Back/admin folder not found!")
 
 # Habilitar mod_rewrite
 RUN a2enmod rewrite
@@ -12,33 +20,33 @@ RUN a2enmod rewrite
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     echo "DirectoryIndex index.php index.html" >> /etc/apache2/apache2.conf
 
-# Configurar VirtualHost COMPLETO
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/Front\n\
-    \n\
-    <Directory /var/www/html/Front>\n\
-        Options -Indexes +FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        DirectoryIndex index.php\n\
-    </Directory>\n\
-    \n\
-    Alias /api /var/www/html/Back\n\
-    Alias /Back /var/www/html/Back\n\
-    \n\
-    <Directory /var/www/html/Back>\n\
-        Options -Indexes +FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        DirectoryIndex index.php\n\
-    </Directory>\n\
-    \n\
-    RewriteEngine On\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+# Configurar VirtualHost SIMPLE (sin saltos de línea complejos)
+RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf && \
+    echo '    DocumentRoot /var/www/html/Front' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    <Directory /var/www/html/Front>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Options -Indexes +FollowSymLinks' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        DirectoryIndex index.php' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    </Directory>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    Alias /api /var/www/html/Back' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    <Directory /var/www/html/Back>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Options -Indexes +FollowSymLinks' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        DirectoryIndex index.php' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    </Directory>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    Alias /admin /var/www/html/Back/admin' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    <Directory /var/www/html/Back/admin>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Options -Indexes +FollowSymLinks' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        AllowOverride All' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        Require all granted' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '        DirectoryIndex index.php' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '    </Directory>' >> /etc/apache2/sites-available/000-default.conf && \
+    echo '</VirtualHost>' >> /etc/apache2/sites-available/000-default.conf
 
-# Permisos (usuario CORRECTO: www-data)
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html
+# Permisos MUY abiertos para debug
+RUN chmod -R 777 /var/www/html
 
 EXPOSE 80
 CMD ["apache2-foreground"]
