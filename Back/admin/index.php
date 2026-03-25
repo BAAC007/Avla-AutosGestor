@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Login Admin - AVLA Autosgestor</title>
     <!-- ✅ Ruta absoluta desde la raíz web -->
-    <link rel="stylesheet" href="/Front/css/index.css">
+    <link rel="stylesheet" href="/Back/css/index.css">
 </head>
 <body>
     <div class="login-box">
