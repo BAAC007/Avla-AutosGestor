@@ -1,4 +1,24 @@
 <?php
+
+require_once __DIR__ . '/config/cors.php';
+handleCORS(); // ← Siempre al inicio, antes de cualquier output
+
+header('Content-Type: application/json');
+
+// Tu lógica de API
+$action = $_GET['action'] ?? $_POST['action'] ?? 'default';
+
+switch ($action) {
+    case 'get_vehicles':
+        // ... consultar DB
+        echo json_encode(['status' => 'ok', 'data' => []]);
+        break;
+    default:
+        http_response_code(404);
+        echo json_encode(['error' => 'Endpoint no encontrado']);
+}
+exit;
+
 session_start();
 include "db.php";
 
