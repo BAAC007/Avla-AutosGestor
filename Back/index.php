@@ -1,21 +1,48 @@
 <?php
+// Back/index.php - API REST
 
 require_once __DIR__ . '/config/cors.php';
-handleCORS(); // ← Siempre al inicio, antes de cualquier output
+handleCORS();
 
 header('Content-Type: application/json');
 
-// Tu lógica de API
-$action = $_GET['action'] ?? $_POST['action'] ?? 'default';
+// Obtener acción
+$action = $_GET['action'] ?? $_POST['action'] ?? null;
 
+// Routing de endpoints
 switch ($action) {
+    case 'test':
+        echo json_encode([
+            'status' => 'ok',
+            'message' => 'API funcionando',
+            'timestamp' => date('Y-m-d H:i:s')
+        ]);
+        break;
+
     case 'get_vehicles':
-        // ... consultar DB
+        // Aquí iría tu lógica de DB
         echo json_encode(['status' => 'ok', 'data' => []]);
         break;
+
+    case 'login':
+        // Endpoint para login vía API (opcional)
+        $data = json_decode(file_get_contents('php://input'), true);
+        $usuario = $data['usuario'] ?? '';
+        $contrasena = $data['contrasena'] ?? '';
+        
+        // Validar credenciales (usa password_verify en producción)
+        // ... lógica de autenticación ...
+        
+        echo json_encode(['status' => 'ok', 'token' => 'abc123']);
+        break;
+
     default:
         http_response_code(404);
-        echo json_encode(['error' => 'Endpoint no encontrado']);
+        echo json_encode([
+            'error' => 'Endpoint no encontrado',
+            'available' => ['test', 'get_vehicles', 'login']
+        ]);
+        break;
 }
 exit;
 
