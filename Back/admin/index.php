@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['admin_usuario'] = $admin['usuario'];
         $_SESSION['admin_nombre'] = $admin['nombre_completo'];
         $_SESSION['es_admin'] = true;
-        header("Location: ../escritorio.php");
+        header("Location: escritorio.php");
         exit;
     } else {
         $error = "Usuario o contraseña incorrectos";

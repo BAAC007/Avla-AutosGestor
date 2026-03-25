@@ -17,7 +17,7 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION[
 <head>
   <title>AVLA autosgestor</title>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="css/escritorio.css">
+  <link rel="stylesheet" href="../css/escritorio.css">
 </head>
 
 <body>
