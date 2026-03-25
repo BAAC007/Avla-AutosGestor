@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login Admin - AVLA Autosgestor</title>
-    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
     <div class="login-box">
