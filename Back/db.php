@@ -6,10 +6,10 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
 }
 
 // Configuración de la base de datos
-define('DB_HOST', 'sql100.infinityfree.com');
-define('DB_NAME', 'if0_41431660_avla');
-define('DB_USER', 'if0_41431660');
-define('DB_PASS', 'Avla212407');
+define('DB_HOST', 'sql7.freesqldatabase.com');
+define('DB_NAME', 'sql7821268');
+define('DB_USER', 'sql7821268');
+define('DB_PASS', 'MyRTakBYy4');
 define('DB_CHARSET', 'utf8mb4');
 
 // Conexión MySQLi (crea la variable $conexion que usan tus otros archivos)
