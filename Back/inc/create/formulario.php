@@ -8,7 +8,7 @@ $accesorios = $conexion->query("SELECT id, nombre, precio FROM accesorio WHERE s
 $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY nombre ASC");
 ?>
 
-<form action="inc/create/procesaformulario.php" method="POST" id="formVehiculo">
+<form action="/api/inc/create/procesaformulario.php" method="POST" id="formVehiculo">
 
     <!-- ══════════════════════════════════════════════════ -->
     <!-- SECCIÓN 1: DATOS DEL VEHÍCULO                      -->
