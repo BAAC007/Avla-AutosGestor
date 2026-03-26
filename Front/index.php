@@ -21,6 +21,9 @@ if (!isset($conexion) || !$conexion) {
 $vehiculos = [];
 $total_vehiculos = 0;
 
+$marcas = [];
+$total_marcas = 0;
+
 $sql = "
     SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen,
            m.nombre as marca_nombre,
@@ -45,6 +48,12 @@ $sql_count = "SELECT COUNT(*) as total FROM vehiculo WHERE estado IN ('nuevo', '
 $resultado_count = $conexion->query($sql_count);
 if ($resultado_count) {
     $total_vehiculos = $resultado_count->fetch_assoc()['total'];
+}
+
+$sql_count_marcas = "SELECT COUNT(DISTINCT marca_id) as total FROM marca";
+$resultado_count_marcas = $conexion->query($sql_count_marcas);
+if ($resultado_count_marcas) {
+    $total_marcas = $resultado_count_marcas->fetch_assoc()['total'];
 }
 
 $logueado = isset($_SESSION['logueado']) && $_SESSION['logueado'] === true;
@@ -151,7 +160,7 @@ if ($logueado && $cliente_id) {
                 <div class="stat-label"><?php echo $t['stats_disponibles']; ?></div>
             </div>
             <div class="stat-item">
-                <div class="stat-number">15+</div>
+                <div class="stat-number"><?php echo $total_marcas; ?></div>
                 <div class="stat-label"><?php echo $t['stats_marcas']; ?></div>
             </div>
             <div class="stat-item">
