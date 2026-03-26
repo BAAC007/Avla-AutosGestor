@@ -8,6 +8,11 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION[
     header("Location: index.php?error=acceso_denegado");
     exit;
 }
+
+if (isset($_GET['accion']) && $_GET['accion'] === 'eliminar') {
+    include "../inc/delete/eliminar.php";
+    exit;
+}
 ?>
 <!doctype html>
 <html lang="es">
@@ -54,8 +59,6 @@ if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION[
         if (isset($_GET['accion'])) {
             if ($_GET['accion'] == "nuevo") {
                 include "../inc/create/formulario.php";
-            } elseif ($_GET['accion'] == "eliminar") {
-                include "../inc/delete/eliminar.php";
             } elseif ($_GET['accion'] == "editar") {
                 include "../inc/update/formularioactualizar.php";
             }
