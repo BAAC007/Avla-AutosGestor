@@ -50,7 +50,7 @@ if ($resultado_count) {
     $total_vehiculos = $resultado_count->fetch_assoc()['total'];
 }
 
-$sql_count_marcas = "SELECT COUNT(DISTINCT marca_id) as total FROM marca";
+$sql_count_marcas = "SELECT COUNT(*) as total FROM marca";
 $resultado_count_marcas = $conexion->query($sql_count_marcas);
 if ($resultado_count_marcas) {
     $total_marcas = $resultado_count_marcas->fetch_assoc()['total'];
