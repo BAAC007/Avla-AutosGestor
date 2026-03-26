@@ -1,5 +1,4 @@
 <?php
-ob_start();
 // inc/delete/eliminar.php
 include dirname(__DIR__, 2) . "/db.php";
 
