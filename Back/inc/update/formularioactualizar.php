@@ -42,7 +42,7 @@ while ($p = $res_pruebas->fetch_assoc()) {
 }
 ?>
 
-<form action="inc/update/procesaformulario.php" method="POST" id="formActualizar">
+<form action="/api/inc/update/procesaformulario.php" method="POST" id="formActualizar">
     <input type="hidden" name="id_vehiculo" value="<?= $fila['id'] ?>">
 
     <!-- ══════════════════════════════════════════════════ -->

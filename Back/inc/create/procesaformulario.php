@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 include dirname(__DIR__, 2) . "/db.php";
 
 // Definir ruta base absoluta
-$base_url = '/Back/';
+$base_url = '/admin/';
 
 // Validar método
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
