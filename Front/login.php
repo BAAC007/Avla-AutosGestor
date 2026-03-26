@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             $error = "Error en el sistema. Intente nuevamente.";
-            error_log("Error login (MySQLi prepare): " . $conexion->error);
+            error_log("Error login: " . $conexion->error);
         }
     }
 }
@@ -58,15 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <form action="login.php" method="POST">
-
             <?php if ($error): ?>
                 <div class="mensaje error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
-
             <?php if ($mensaje): ?>
                 <div class="mensaje exito"><?php echo htmlspecialchars($mensaje); ?></div>
             <?php endif; ?>
-
             <h1>Inicio de sesión</h1>
             <div class="input-group">
                 <input type="text" name="usuario" placeholder="Nombre de usuario" required>

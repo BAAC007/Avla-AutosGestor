@@ -1,6 +1,4 @@
 <?php
-// Back/index.php - API REST para Avla-AutosGestor
-
 header('Content-Type: application/json; charset=utf-8');
 
 $allowed_origins = [
@@ -24,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Conexión usando variables de entorno
 function getDBConnection() {
     $host = getenv('DB_HOST') ?: 'sql7.freesqldatabase.com';
     $user = getenv('DB_USER') ?: 'sql7821268';
@@ -116,8 +113,8 @@ switch ($action) {
         break;
 
     case 'admin_login':
-        $input     = json_decode(file_get_contents('php://input'), true);
-        $usuario   = trim($_POST['usuario']    ?? $input['usuario']    ?? '');
+        $input      = json_decode(file_get_contents('php://input'), true);
+        $usuario    = trim($_POST['usuario']    ?? $input['usuario']    ?? '');
         $contrasena = $_POST['contrasena'] ?? $input['contrasena'] ?? '';
 
         if (empty($usuario) || empty($contrasena)) sendError('Usuario y contraseña son requeridos', 400);
