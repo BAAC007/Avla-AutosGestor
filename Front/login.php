@@ -1,49 +1,40 @@
 <?php
+session_start();
 require_once dirname(__DIR__) . '/Back/db.php';
 
-session_start();
 $mensaje = '';
-$error = '';
+$error   = '';
 
-// Validar que $conexion exista
 if (!isset($conexion) || !$conexion) {
-    die("❌ Error: No hay conexión a la base de datos");
+    die("Error: No hay conexión a la base de datos");
 }
 
-// Procesar login si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuario = $_POST['usuario'] ?? '';
+    $usuario    = trim($_POST['usuario']   ?? '');
     $contrasena = $_POST['contrasena'] ?? '';
 
-    // Validaciones básicas
     if (empty($usuario) || empty($contrasena)) {
         $error = "Por favor, complete todos los campos";
     } else {
-        // ✅ Preparar sentencia con MySQLi (usando ? en vez de :dni_nie)
         $stmt = $conexion->prepare("
-            SELECT id, nombre, contrasena, email 
-            FROM cliente 
-            WHERE usuario = ? 
+            SELECT id, nombre, contrasena, email
+            FROM cliente
+            WHERE usuario = ?
             LIMIT 1
         ");
 
         if ($stmt) {
-            // Bind del parámetro: "s" = string
             $stmt->bind_param("s", $usuario);
             $stmt->execute();
             $resultado = $stmt->get_result();
-            $cliente = $resultado->fetch_assoc();
+            $cliente   = $resultado->fetch_assoc();
             $stmt->close();
 
-            // Verificar credenciales
             if ($cliente && password_verify($contrasena, $cliente['contrasena'])) {
-                // Login exitoso
-                $_SESSION['cliente_id'] = $cliente['id'];
+                $_SESSION['cliente_id']     = $cliente['id'];
                 $_SESSION['cliente_nombre'] = $cliente['nombre'];
-                $_SESSION['cliente_email'] = $cliente['email'];
-                $_SESSION['logueado'] = true;
-
-                // Redirigir al dashboard del cliente
+                $_SESSION['cliente_email']  = $cliente['email'];
+                $_SESSION['logueado']       = true;
                 header('Location: dashboard.php');
                 exit();
             } else {
@@ -56,17 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio de sesion</title>
+    <title>Inicio de sesión - AVLA</title>
     <link rel="stylesheet" href="css/login.css">
 </head>
-
 <body>
     <div class="login-container">
         <form action="login.php" method="POST">
@@ -79,19 +67,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mensaje exito"><?php echo htmlspecialchars($mensaje); ?></div>
             <?php endif; ?>
 
-            <h1>Inicio de sesion</h1>
-            <div id="input">
-                <input type="text" name="usuario" placeholder="Nombre de usuario">
+            <h1>Inicio de sesión</h1>
+            <div class="input-group">
+                <input type="text" name="usuario" placeholder="Nombre de usuario" required>
             </div>
-            <div id="input">
-                <input type="password" name="contrasena" placeholder="Contraseña">
+            <div class="input-group">
+                <input type="password" name="contrasena" placeholder="Contraseña" required>
             </div>
             <div class="button">
-                <button type="submit">Iniciar sesion</button>
+                <button type="submit">Iniciar sesión</button>
             </div>
             <a href="register.php" class="register-link">¿No tienes cuenta? Registrarse</a>
         </form>
     </div>
 </body>
-
 </html>
