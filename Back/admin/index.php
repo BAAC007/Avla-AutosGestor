@@ -1,5 +1,4 @@
 <?php
-// Back/admin/index.php - Login del panel
 session_start();
 require_once __DIR__ . '/../db.php';
 
@@ -11,21 +10,21 @@ if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuario = trim($_POST['usuario'] ?? '');
+    $usuario    = trim($_POST['usuario']    ?? '');
     $contrasena = $_POST['contrasena'] ?? '';
 
     $stmt = $conexion->prepare("SELECT id, usuario, nombre_completo, activo FROM administrador WHERE usuario = ? AND contrasena = ? LIMIT 1");
     $stmt->bind_param("ss", $usuario, $contrasena);
     $stmt->execute();
     $resultado = $stmt->get_result();
-    $admin = $resultado->fetch_assoc();
+    $admin     = $resultado->fetch_assoc();
     $stmt->close();
 
     if ($admin && $admin['activo'] == 1) {
-        $_SESSION['admin_id'] = $admin['id'];
+        $_SESSION['admin_id']      = $admin['id'];
         $_SESSION['admin_usuario'] = $admin['usuario'];
-        $_SESSION['admin_nombre'] = $admin['nombre_completo'];
-        $_SESSION['es_admin'] = true;
+        $_SESSION['admin_nombre']  = $admin['nombre_completo'];
+        $_SESSION['es_admin']      = true;
         header("Location: escritorio.php");
         exit;
     } else {
@@ -38,8 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login Admin - AVLA Autosgestor</title>
-    <!-- ✅ Ruta absoluta desde la raíz web -->
-    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="/back-css/index.css">
 </head>
 <body>
     <div class="login-box">
