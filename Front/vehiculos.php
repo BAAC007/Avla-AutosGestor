@@ -339,8 +339,8 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
                 <a href="dashboard.php" class="btn-nombre-usuario"><?php echo htmlspecialchars($cliente_nombre); ?></a>
                 <a href="logout.php" class="btn btn-logout"><?php echo $t['nav_cerrar']; ?></a>
             <?php else: ?>
-                <a href="login.php" class="btn btn-login">Iniciar Sesion</a>
-                <a href="register.php" class="btn btn-login" style="background:#fff">Registrarse</a>
+                <a href="login.php" class="btn btn-login"><?php echo $t['nav_iniciar']; ?></a>
+                <a href="register.php" class="btn btn-login" style="background:#ffffff;"><?php echo $t['nav_registrar']; ?></a>
             <?php endif; ?>
         </div>
     </div>
