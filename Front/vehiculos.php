@@ -333,8 +333,15 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
 <body>
 
     <div class="navbar">
-        <h1 onclick="window.location.href='index.php'" style="cursor:pointer" id="avla-racers">Concesionario AVLA</h1>
+        <a href="index.php" class="navbar-logo">
+            <img src="imagenes/Avlalogo.png" alt="AVLA">
+        </a>
         <div class="user-actions">
+            <div class="leng-selector">
+                <a href="?leng=es" <?php echo $lang === 'es' ? 'class="active"' : ''; ?>>ES</a>
+                <span>|</span>
+                <a href="?leng=en" <?php echo $lang === 'en' ? 'class="active"' : ''; ?>>EN</a>
+            </div>
             <?php if ($logueado): ?>
                 <a href="dashboard.php" class="btn-nombre-usuario"><?php echo htmlspecialchars($cliente_nombre); ?></a>
                 <a href="logout.php" class="btn btn-logout"><?php echo $t['nav_cerrar']; ?></a>
