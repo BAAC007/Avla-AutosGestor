@@ -1,5 +1,16 @@
 <?php
 session_start();
+
+if (isset($_GET['leng']) && in_array($_GET['leng'], ['es', 'en'])) {
+    $_SESSION['leng'] = $_GET['leng'];
+    header('Location: index.php');
+    exit;
+}
+
+// Cargar idioma
+$lang = $_SESSION['leng'] ?? 'es';
+$t = json_decode(file_get_contents("leng/{$lang}.json"), true);
+
 require_once dirname(__DIR__) . '/Back/db.php';
 
 if (!isset($conexion) || !$conexion) {
@@ -7,7 +18,8 @@ if (!isset($conexion) || !$conexion) {
 }
 
 $logueado = isset($_SESSION['logueado']) && $_SESSION['logueado'] === true;
-$cliente_nombre = $_SESSION['cliente_nombre'] ?? '';
+$cliente_nombre = $_SESSION['cliente_nombre'] ?? 'Cliente';
+$cliente_id = $_SESSION['cliente_id'] ?? null;
 
 // Filtros
 $filtro_marca  = isset($_GET['marca'])  ? intval($_GET['marca'])  : 0;
