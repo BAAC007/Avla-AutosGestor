@@ -144,6 +144,13 @@ main h3 {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling:
+    touch;
+  width: 100%;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
