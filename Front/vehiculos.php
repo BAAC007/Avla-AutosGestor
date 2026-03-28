@@ -95,6 +95,7 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehiculos - Concesionario AVLA</title>
     <link rel="stylesheet" href="css/index.css">
+    <link rel="icon" href="imagenes/Avlalogo.png">
     <style>
         .page-header {
             background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);
