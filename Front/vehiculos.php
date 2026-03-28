@@ -339,6 +339,32 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
             display: block;
             margin-bottom: 16px;
         }
+
+        .leng-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .leng-selector a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color .2s;
+        }
+
+        .leng-selector a:hover {
+            color: white;
+        }
+
+        .leng-selector a.active {
+            color: white;
+        }
+
+        .leng-selector span {
+            color: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 
