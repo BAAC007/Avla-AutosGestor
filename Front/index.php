@@ -113,6 +113,13 @@ if ($logueado && $cliente_id) {
 
     <!-- Navbar -->
     <div class="navbar">
+        <button class="nav-toggle"
+            aria-label="Menú"
+            aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <div class="nav-links">
             <a href="#vehiculos"><?php echo $t['nav_vehiculos']; ?></a>
             <a href="#servicios"><?php echo $t['nav_servicios']; ?></a>
@@ -462,6 +469,28 @@ if ($logueado && $cliente_id) {
                 });
             });
         });
+    </script>
+    <script>
+        (function() {
+            var btn = document.querySelector(
+                '.nav-toggle');
+            var nav = document.querySelector(
+                '.nav-links');
+            if (btn && nav) {
+                btn.addEventListener('click',
+                    function() {
+                        nav.classList.toggle('open');
+                    });
+                nav.querySelectorAll('a')
+                    .forEach(function(a) {
+                        a.addEventListener('click',
+                            function() {
+                                nav.classList
+                                    .remove('open');
+                            });
+                    });
+            }
+        })();
     </script>
 </body>
 

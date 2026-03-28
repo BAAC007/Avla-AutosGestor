@@ -1,3 +1,4 @@
+<div class="table-wrapper">
 <table>
 <thead>
   <tr>
