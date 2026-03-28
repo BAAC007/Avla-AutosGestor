@@ -80,7 +80,7 @@ if ($logueado && $cliente_id) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concesionario AVLA</title>
     <link rel="stylesheet" href="css/index.css">
-    <link rel="icon" href="imagenes/Avlalogo.png">
+    <link rel="icon" type="image/png" href="imagenes/Avlalogo.png">
     <style>
         .leng-selector {
             display: flex;
