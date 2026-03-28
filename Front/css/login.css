@@ -66,7 +66,7 @@ input {
     padding: 12px 16px;
     border: 1.5px solid #dde1e9;
     border-radius: 7px;
-    font-size: 15px;
+    font-size: max(16px, 15px); /* = 16px en todos los navegadores*/
     color: #333;
     background: #fafbfc;
     transition: border-color 0.25s, box-shadow 0.25s;
@@ -89,7 +89,8 @@ button {
     color: white;
     border: none;
     padding: 14px;
-    font-size: 15px;
+    min-height: 48px;
+    font-size: max(16px, 15px); /* = 16px en todos los navegadores*/
     border-radius: 7px;
     cursor: pointer;
     width: 100%;

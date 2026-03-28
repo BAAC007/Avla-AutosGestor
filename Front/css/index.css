@@ -14,9 +14,10 @@ body {
 .navbar {
     background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);
     color: white;
-    padding: 12px 40px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
     align-items: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -45,11 +46,38 @@ body {
     opacity: 0.85;
 }
 
+.nav-toggle {
+    display: none;
+    /* escritorio */
+}
+
+@media(max-width:768px) {
+    .nav-toggle {
+        display: flex;
+        order: 1;
+    }
+}
+
 .nav-links {
     display: flex;
     gap: 30px;
     align-items: center;
     justify-content: flex-start;
+}
+
+@media(max-width:768px) {
+    .nav-links {
+        order: 4;
+        width: 100%;
+        flex-direction: column;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height .35s ease;
+    }
+
+    .nav-links.open {
+        max-height: 400px;
+    }
 }
 
 .user-actions {
@@ -117,6 +145,26 @@ body {
     color: white;
     text-align: center;
     padding: 100px 20px;
+}
+
+@media(max-width:768px) {
+    .hero {
+        padding: 60px 16px;
+    }
+
+    .hero h2 {
+        font-size: 28px;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+    .btn-hero {
+        display: block;
+        max-width: 260px;
+        margin: 10px auto;
+    }
 }
 
 .hero h2 {
@@ -382,6 +430,16 @@ body {
     gap: 24px;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+@media(max-width:500px){
+  .vehiculo-detalles {
+    grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    grid-template-columns:
+      repeat(2,1fr);
+  }
 }
 
 .servicios-grid .stat-item {

@@ -228,6 +228,7 @@ $stmt->close();
             <?php if (empty($ventas)): ?>
                 <p class="empty">Aún no has realizado compras.</p>
             <?php else: ?>
+                <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr><th>Vehículo</th><th>Fecha</th><th>Precio</th><th>Forma de pago</th><th>Estado</th></tr>
@@ -248,6 +249,7 @@ $stmt->close();
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
         
@@ -257,6 +259,7 @@ $stmt->close();
             <?php if (empty($pruebas)): ?>
                 <p class="empty">No tienes pruebas de manejo agendadas.</p>
             <?php else: ?>
+                <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr><th>Vehículo</th><th>Fecha</th><th>Hora</th><th>Observaciones</th></tr>
@@ -274,6 +277,7 @@ $stmt->close();
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
         
