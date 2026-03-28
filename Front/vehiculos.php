@@ -336,9 +336,8 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
         <h1 onclick="window.location.href='index.php'" style="cursor:pointer" id="avla-racers">Concesionario AVLA</h1>
         <div class="user-actions">
             <?php if ($logueado): ?>
-                <span><?php echo htmlspecialchars($cliente_nombre); ?></span>
-                <a href="dashboard.php" class="btn btn-login">Mi Panel</a>
-                <a href="logout.php" class="btn btn-logout">Cerrar Sesion</a>
+                <a href="dashboard.php" class="btn-nombre-usuario"><?php echo htmlspecialchars($cliente_nombre); ?></a>
+                <a href="logout.php" class="btn btn-logout"><?php echo $t['nav_cerrar']; ?></a>
             <?php else: ?>
                 <a href="login.php" class="btn btn-login">Iniciar Sesion</a>
                 <a href="register.php" class="btn btn-login" style="background:#fff">Registrarse</a>
