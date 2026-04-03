@@ -10,7 +10,7 @@ if (!isset($conexion) || !$conexion) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     // 🔑 Capturar todos los campos del formulario
     $nombre = trim($_POST['nombre'] ?? '');
     $apellidos = trim($_POST['apellidos'] ?? '');
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $telefono = trim($_POST['telefono'] ?? '');
     $clave = $_POST['clave'] ?? '';
     $clave_confirm = $_POST['clave_confirm'] ?? '';
-    
+
     // Validaciones
     if (empty($nombre) || empty($apellidos) || empty($usuario) || empty($dni_nie) || empty($email_real) || empty($clave)) {
         $error = "Todos los campos marcados con * son obligatorios";
@@ -37,66 +37,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // ✅ Iniciar transacción con MySQLi
         $conexion->begin_transaction();
-        
+
         try {
             // Paso 1: Verificar si el usuario ya existe
             $stmt = $conexion->prepare("SELECT id FROM cliente WHERE usuario = ?");
             $stmt->bind_param("s", $usuario);
             $stmt->execute();
             $resultado = $stmt->get_result();
-            
+
             if ($resultado->fetch_assoc()) {
                 $error = "Este nombre de usuario ya está en uso. Elige otro.";
                 $conexion->rollback();
                 $stmt->close();
             } else {
                 $stmt->close();
-                
+
                 // Paso 2: Verificar DNI/NIE duplicado
                 $stmt = $conexion->prepare("SELECT id FROM cliente WHERE DNI_NIE = ?");
                 $stmt->bind_param("s", $dni_nie);
                 $stmt->execute();
                 $resultado = $stmt->get_result();
-                
+
                 if ($resultado->fetch_assoc()) {
                     $error = "Este DNI/NIE ya está registrado";
                     $conexion->rollback();
                     $stmt->close();
                 } else {
                     $stmt->close();
-                    
+
                     // Paso 3: Verificar email duplicado
                     $stmt = $conexion->prepare("SELECT id FROM cliente WHERE email = ?");
                     $stmt->bind_param("s", $email_real);
                     $stmt->execute();
                     $resultado = $stmt->get_result();
-                    
+
                     if ($resultado->fetch_assoc()) {
                         $error = "Este email ya está registrado";
                         $conexion->rollback();
                         $stmt->close();
                     } else {
                         $stmt->close();
-                        
+
                         // Paso 4: Hashear contraseña
                         $contrasena_hash = password_hash($clave, PASSWORD_DEFAULT);
-                        
+
                         // Paso 5: Combinar nombre + apellidos
                         $nombre_completo = trim($nombre . ' ' . $apellidos);
-                        
+
                         // Paso 6: Insertar cliente con TODOS los campos
                         $stmt = $conexion->prepare("
                             INSERT INTO cliente (nombre, usuario, contrasena, DNI_NIE, email, telefono) 
                             VALUES (?, ?, ?, ?, ?, ?)
                         ");
-                        
+
                         // Bind de 6 parámetros: todos strings = "ssssss"
                         $stmt->bind_param("ssssss", $nombre_completo, $usuario, $contrasena_hash, $dni_nie, $email_real, $telefono);
-                        
+
                         if ($stmt->execute()) {
                             $conexion->commit();
                             $mensaje = "¡Registro exitoso! Ya puedes iniciar sesión";
-                            
+
                             // Limpiar campos después del registro exitoso
                             $nombre = $apellidos = $usuario = $dni_nie = $email_real = $telefono = '';
                         } else {
@@ -119,51 +119,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Concesionario AVLA</title>
     <link rel="stylesheet" href="css/register.css">
+    <link rel="icon" href="imagenes/favicon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="imagenes/Avlalogo.png" type="image/png">
 </head>
+
 <body>
     <div class="register-container">
         <h1> Registro</h1>
-        
+
         <?php if ($error): ?>
             <div class="mensaje error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
-        
+
         <?php if ($mensaje): ?>
             <div class="mensaje exito"><?php echo htmlspecialchars($mensaje); ?></div>
         <?php endif; ?>
-        
+
         <form action="register.php" method="POST">
             <div id="input">
-                <input type="text" name="nombre" placeholder="Nombre(s) *" required 
-                       value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
+                <input type="text" name="nombre" placeholder="Nombre(s) *" required
+                    value="<?php echo htmlspecialchars($nombre ?? ''); ?>">
             </div>
             <div id="input">
-                <input type="text" name="apellidos" placeholder="Apellidos *" required 
-                       value="<?php echo htmlspecialchars($apellidos ?? ''); ?>">
+                <input type="text" name="apellidos" placeholder="Apellidos *" required
+                    value="<?php echo htmlspecialchars($apellidos ?? ''); ?>">
             </div>
             <div id="input">
-                <input type="text" name="usuario" placeholder="Nombre de usuario *" required 
-                       value="<?php echo htmlspecialchars($usuario ?? ''); ?>" minlength="4" maxlength="50">
+                <input type="text" name="usuario" placeholder="Nombre de usuario *" required
+                    value="<?php echo htmlspecialchars($usuario ?? ''); ?>" minlength="4" maxlength="50">
                 <small class="form-note"> Solo letras, números y guión bajo. Mínimo 4 caracteres.</small>
             </div>
             <div id="input">
-                <input type="text" name="dni_nie" placeholder="DNI/NIE *" required 
-                       value="<?php echo htmlspecialchars($dni_nie ?? ''); ?>" maxlength="9">
+                <input type="text" name="dni_nie" placeholder="DNI/NIE *" required
+                    value="<?php echo htmlspecialchars($dni_nie ?? ''); ?>" maxlength="9">
             </div>
             <div id="input">
-                <input type="email" name="email_real" placeholder="Email *" required 
-                       value="<?php echo htmlspecialchars($email_real ?? ''); ?>">
+                <input type="email" name="email_real" placeholder="Email *" required
+                    value="<?php echo htmlspecialchars($email_real ?? ''); ?>">
                 <small class="form-note"> Recibirás ofertas y facturas en este email</small>
             </div>
             <div id="input">
-                <input type="tel" name="telefono" placeholder="Teléfono *" required 
-                       value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9}" title="Introduce 9 digitos" maxlength="9">
-                       <small class="form-note"> Ejemplo 623258947</small>
+                <input type="tel" name="telefono" placeholder="Teléfono *" required
+                    value="<?php echo htmlspecialchars($telefono ?? ''); ?>" pattern="[0-9]{9}" title="Introduce 9 digitos" maxlength="9">
+                <small class="form-note"> Ejemplo 623258947</small>
             </div>
             <div id="input">
                 <input type="password" name="clave" placeholder="Contraseña *" required minlength="8">
@@ -176,10 +180,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit">Crear Cuenta</button>
             </div>
         </form>
-        
+
         <a href="login.php" class="login-link">¿Ya tienes cuenta? Inicia sesión</a>
     </div>
-    
+
     <script>
         // Validación mejorada de contraseñas y usuario
         document.querySelector('form').addEventListener('submit', function(e) {
@@ -187,33 +191,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const confirm = document.querySelector('[name="clave_confirm"]').value;
             const usuario = document.querySelector('[name="usuario"]').value;
             const email = document.querySelector('[name="email_real"]').value;
-            
+
             // Validar contraseñas
             if (clave !== confirm) {
                 e.preventDefault();
                 alert('❌ Las contraseñas no coinciden');
                 return false;
             }
-            
+
             if (clave.length < 8) {
                 e.preventDefault();
                 alert('❌ La contraseña debe tener al menos 8 caracteres');
                 return false;
             }
-            
+
             // Validar usuario
             if (usuario.length < 4) {
                 e.preventDefault();
                 alert('❌ El nombre de usuario debe tener al menos 4 caracteres');
                 return false;
             }
-            
+
             if (!/^[a-zA-Z0-9_]+$/.test(usuario)) {
                 e.preventDefault();
                 alert('❌ El usuario solo puede contener letras, números y guión bajo (_)');
                 return false;
             }
-            
+
             // Validar email
             if (!email.includes('@')) {
                 e.preventDefault();
@@ -221,16 +225,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 return false;
             }
         });
-        
+
         // Mostrar sugerencias en tiempo real para el usuario
         document.querySelector('[name="usuario"]').addEventListener('input', function(e) {
             const usuario = e.target.value;
             const regex = /^[a-zA-Z0-9_]*$/;
-            
+
             if (!regex.test(usuario)) {
                 e.target.value = usuario.replace(/[^a-zA-Z0-9_]/g, '');
             }
         });
     </script>
 </body>
+
 </html>

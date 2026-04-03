@@ -103,6 +103,8 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Perfil - Concesionario AVLA</title>
     <link rel="stylesheet" href="css/editar_perfil.css">
+    <link rel="icon" href="imagenes/favicon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="imagenes/Avlalogo.png" type="image/png">
     <style>
         .perfil-header {
             display: flex;
