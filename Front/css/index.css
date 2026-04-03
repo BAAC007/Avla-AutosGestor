@@ -14,11 +14,12 @@ body {
 .navbar {
     background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);
     color: white;
-    padding: 14px 20px;
+    padding: 0 24px;
     display: flex;
     flex-wrap: wrap;
     gap: 0;
     align-items: center;
+    height: 64px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
@@ -29,18 +30,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     height: 60px;
-    width: 100px;
+    padding: 0 8px;
 }
 
 .navbar-logo img {
-    height: 90px;
+    height: 54px;
     width: auto;
     display: block;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
     transition: opacity 0.2s;
 }
 
@@ -50,7 +47,27 @@ body {
 
 .nav-toggle {
     display: none;
-    /* escritorio */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s;
 }
 
 @media(max-width:768px) {
@@ -65,6 +82,8 @@ body {
     gap: 30px;
     align-items: center;
     justify-content: flex-start;
+    margin-right: auto;
+    padding-left: 24px;
 }
 
 @media(max-width:768px) {
