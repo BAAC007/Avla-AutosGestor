@@ -373,6 +373,17 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
 <body>
 
     <div class="navbar">
+        <button class="nav-toggle" aria-label="Menú" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links">
+            <a href="index.php#vehiculos"><?php echo $t['nav_vehiculos']; ?></a>
+            <a href="index.php#servicios"><?php echo $t['nav_servicios']; ?></a>
+            <a href="index.php#contacto"><?php echo $t['nav_contacto']; ?></a>
+            <?php if ($logueado): ?>
+                <a href="index.php#panel"><?php echo $t['nav_mi_panel']; ?></a>
+            <?php endif; ?>
+        </div>
         <a href="index.php" class="navbar-logo">
             <img src="imagenes/Avlalogo.png" alt="AVLA">
         </a>
@@ -492,6 +503,24 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
         <p>Diseñado por Bryan Alejandro Avila Castro</p>
     </div>
 
+    <script>
+        (function() {
+            var btn = document.querySelector('.nav-toggle');
+            var nav = document.querySelector('.nav-links');
+            if (btn && nav) {
+                btn.addEventListener('click', function() {
+                    nav.classList.toggle('open');
+                    btn.setAttribute('aria-expanded', nav.classList.contains('open'));
+                });
+                nav.querySelectorAll('a').forEach(function(a) {
+                    a.addEventListener('click', function() {
+                        nav.classList.remove('open');
+                        btn.setAttribute('aria-expanded', 'false');
+                    });
+                });
+            }
+        })();
+    </script>
 </body>
 
 </html>
