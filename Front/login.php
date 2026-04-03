@@ -49,12 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de sesión - AVLA</title>
     <link rel="stylesheet" href="css/login.css">
+    <link rel="icon" href="imagenes/favicon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="imagenes/Avlalogo.png" type="image/png">
 </head>
+
 <body>
     <div class="login-container">
         <form action="login.php" method="POST">
@@ -78,4 +82,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </body>
+
 </html>

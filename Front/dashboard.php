@@ -22,23 +22,23 @@ if (!isset($conexion) || !$conexion) {
 
 // Procesar formulario de nueva prueba de manejo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agendar_prueba'])) {
-    
+
     // Asegurar charset correcto en la conexión
     if (method_exists($conexion, 'set_charset')) {
         $conexion->set_charset("utf8mb4");
     }
-    
+
     $vehiculo_id = isset($_POST['vehiculo_id']) ? intval($_POST['vehiculo_id']) : 0;
     $fecha_raw = isset($_POST['fecha_prueba']) ? trim($_POST['fecha_prueba']) : '';
     $hora = $_POST['hora_prueba'] ?? '';
     $observaciones = trim($_POST['observaciones'] ?? '');
-    
+
     // Debug extremo
     error_log("=== PROCESANDO PRUEBA ===");
     error_log("fecha_raw: '" . $fecha_raw . "' (len: " . strlen($fecha_raw) . ")");
     error_log("hora: '" . $hora . "'");
     error_log("vehiculo_id: " . $vehiculo_id);
-    
+
     // Validación estricta de fecha
     $fecha = '';
     if (!empty($fecha_raw) && strlen($fecha_raw) === 10 && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha_raw)) {
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agendar_prueba'])) {
     } else {
         error_log("Formato de fecha incorrecto: '" . $fecha_raw . "'");
     }
-    
+
     // Validaciones
     if ($vehiculo_id <= 0) {
         $error = "Selecciona un vehículo válido";
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agendar_prueba'])) {
         error_log("  fecha: '" . $fecha . "' (bytes: " . bin2hex($fecha) . ")");
         error_log("  hora: '" . $hora . "'");
         error_log("  observaciones: '" . $observaciones . "'");
-        
+
         try {
             // Crear copias explícitas para bind_param (evita problema de referencias)
             $cid = (int)$cliente_id;
@@ -76,29 +76,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agendar_prueba'])) {
             $f = (string)$fecha;
             $h = (string)$hora;
             $o = (string)$observaciones;
-            
+
             error_log("Valores para bind_param:");
             error_log("  fecha_bind: '" . $f . "' (hex: " . bin2hex($f) . ")");
-            
+
             $stmt = $conexion->prepare("INSERT INTO prueba_manejo (cliente_id, vehiculo_id, fecha, hora, observaciones) VALUES (?, ?, ?, ?, ?)");
-            
+
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $conexion->error);
             }
-            
+
             // Usar las COPIAS, no las variables originales
             $stmt->bind_param("iisss", $cid, $vid, $f, $h, $o);
-            
+
             error_log("Ejecutando INSERT con bind_param...");
-            
+
             if (!$stmt->execute()) {
                 throw new Exception("Execute failed: " . $stmt->error);
             }
-            
+
             $mensaje = "Prueba de manejo agendada exitosamente";
             error_log("INSERT exitoso");
             $stmt->close();
-            
         } catch (Exception $e) {
             $error = "Error: " . $e->getMessage();
             error_log("ERROR EXCEPTION: " . $e->getMessage());
@@ -133,13 +132,13 @@ while ($fila = $resultado->fetch_assoc()) {
     $marca_stmt->execute();
     $marca = $marca_stmt->get_result()->fetch_assoc();
     $marca_stmt->close();
-    
+
     $modelo_stmt = $conexion->prepare("SELECT nombre FROM modelo WHERE id = ?");
     $modelo_stmt->bind_param("i", $fila['modelo_id']);
     $modelo_stmt->execute();
     $modelo = $modelo_stmt->get_result()->fetch_assoc();
     $modelo_stmt->close();
-    
+
     $fila['marca_nombre'] = $marca['nombre'] ?? '';
     $fila['modelo_nombre'] = $modelo['nombre'] ?? '';
     $ventas[] = $fila;
@@ -185,15 +184,17 @@ $stmt->close();
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concesionario AVLA</title>
     <link rel="stylesheet" href="css/dashboard.css">
-    
-    <!-- Flatpickr CSS - URLs corregidas SIN espacios -->
-    <!-- Flatpickr JS - URLs corregidas SIN espacios -->
+    <link rel="icon" href="imagenes/favicon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="imagenes/Avlalogo.png" type="image/png">
+
 </head>
+
 <body>
     <div class="dashboard-container">
         <div class="header">
@@ -201,14 +202,14 @@ $stmt->close();
             <a id="index" href="index.php">Volver al inicio</a>
             <a id="logout" href="logout.php">Cerrar sesión</a>
         </div>
-        
+
         <?php if ($error): ?>
             <div class="mensaje error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         <?php if ($mensaje): ?>
             <div class="mensaje exito"><?php echo htmlspecialchars($mensaje); ?></div>
         <?php endif; ?>
-        
+
         <!-- Sección: Información de cuenta -->
         <div class="section">
             <h2>Mi Información</h2>
@@ -221,7 +222,7 @@ $stmt->close();
             </div>
             <p style="margin-top:15px;"><a href="editar_perfil.php" style="color:#3498db;">Editar mi información</a></p>
         </div>
-        
+
         <!-- Sección: Mis compras -->
         <div class="section">
             <h2>Mis Compras</h2>
@@ -229,30 +230,36 @@ $stmt->close();
                 <p class="empty">Aún no has realizado compras.</p>
             <?php else: ?>
                 <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>Vehículo</th><th>Fecha</th><th>Precio</th><th>Forma de pago</th><th>Estado</th></tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($ventas as $venta): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($venta['marca_nombre'] . ' ' . $venta['modelo_nombre'] . ' (' . $venta['año'] . ')'); ?>
-                                <br><small style="color:#7f8c8d;"><?php echo htmlspecialchars($venta['color']); ?></small>
-                            </td>
-                            <td><?php echo date('d/m/Y', strtotime($venta['fecha'])); ?></td>
-                            <td><?php echo number_format($venta['precio'], 2, ',', '.'); ?> €</td>
-                            <td><?php echo htmlspecialchars($venta['forma_pago'] ?? '-'); ?></td>
-                            <td><?php if ($venta['estado']): ?><span class="estado <?php echo strtolower($venta['estado']); ?>"><?php echo htmlspecialchars($venta['estado']); ?></span>
-                                <?php else: ?><span class="estado pendiente">Sin estado</span><?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vehículo</th>
+                                <th>Fecha</th>
+                                <th>Precio</th>
+                                <th>Forma de pago</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($ventas as $venta): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($venta['marca_nombre'] . ' ' . $venta['modelo_nombre'] . ' (' . $venta['año'] . ')'); ?>
+                                        <br><small style="color:#7f8c8d;"><?php echo htmlspecialchars($venta['color']); ?></small>
+                                    </td>
+                                    <td><?php echo date('d/m/Y', strtotime($venta['fecha'])); ?></td>
+                                    <td><?php echo number_format($venta['precio'], 2, ',', '.'); ?> €</td>
+                                    <td><?php echo htmlspecialchars($venta['forma_pago'] ?? '-'); ?></td>
+                                    <td><?php if ($venta['estado']): ?><span class="estado <?php echo strtolower($venta['estado']); ?>"><?php echo htmlspecialchars($venta['estado']); ?></span>
+                                        <?php else: ?><span class="estado pendiente">Sin estado</span><?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             <?php endif; ?>
         </div>
-        
+
         <!-- Sección: Mis pruebas de manejo -->
         <div class="section">
             <h2>Mis Pruebas de Manejo</h2>
@@ -260,27 +267,32 @@ $stmt->close();
                 <p class="empty">No tienes pruebas de manejo agendadas.</p>
             <?php else: ?>
                 <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>Vehículo</th><th>Fecha</th><th>Hora</th><th>Observaciones</th></tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($pruebas as $prueba): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($prueba['marca_nombre'] . ' ' . $prueba['modelo_nombre']); ?>
-                                <br><small style="color:#7f8c8d;"><?php echo htmlspecialchars($prueba['año']); ?></small>
-                            </td>
-                            <td><?php echo date('d/m/Y', strtotime($prueba['fecha'])); ?></td>
-                            <td><?php echo htmlspecialchars($prueba['hora']); ?></td>
-                            <td><?php echo htmlspecialchars($prueba['observaciones'] ?? '-'); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vehículo</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pruebas as $prueba): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($prueba['marca_nombre'] . ' ' . $prueba['modelo_nombre']); ?>
+                                        <br><small style="color:#7f8c8d;"><?php echo htmlspecialchars($prueba['año']); ?></small>
+                                    </td>
+                                    <td><?php echo date('d/m/Y', strtotime($prueba['fecha'])); ?></td>
+                                    <td><?php echo htmlspecialchars($prueba['hora']); ?></td>
+                                    <td><?php echo htmlspecialchars($prueba['observaciones'] ?? '-'); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             <?php endif; ?>
         </div>
-        
+
         <!-- Sección: Agendar nueva prueba -->
         <div class="section">
             <h2>Agendar Nueva Prueba de Manejo</h2>
@@ -290,10 +302,10 @@ $stmt->close();
                     <select name="vehiculo_id" id="vehiculo_id" required>
                         <option value="">Seleccionar vehículo</option>
                         <?php foreach ($vehiculos as $vehiculo): ?>
-                        <option value="<?php echo $vehiculo['id']; ?>">
-                            <?php echo htmlspecialchars($vehiculo['marca'] . ' ' . $vehiculo['modelo'] . ' ' . $vehiculo['año'] . ' - ' . $vehiculo['color']); ?>
-                            (<?php echo number_format($vehiculo['precio'], 2, ',', '.'); ?> €)
-                        </option>
+                            <option value="<?php echo $vehiculo['id']; ?>">
+                                <?php echo htmlspecialchars($vehiculo['marca'] . ' ' . $vehiculo['modelo'] . ' ' . $vehiculo['año'] . ' - ' . $vehiculo['color']); ?>
+                                (<?php echo number_format($vehiculo['precio'], 2, ',', '.'); ?> €)
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -329,6 +341,7 @@ $stmt->close();
             </form>
         </div>
     </div>
-    
+
 </body>
+
 </html>

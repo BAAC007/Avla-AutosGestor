@@ -30,6 +30,8 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
+    height: 60px;
+    width: 100px;
 }
 
 .navbar-logo img {
@@ -403,24 +405,6 @@ body {
 .footer p {
     margin: 10px 0;
     color: #aaa;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        gap: 15px;
-        padding: 20px;
-    }
-
-    .nav-links {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .hero h2 {
-        font-size: 32px;
-    }
 }
 
 /* ── Servicios ──────────────────────────────────────────── */
