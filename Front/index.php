@@ -415,6 +415,22 @@ if ($logueado && $cliente_id) {
         .carrusel-nav-btn.btn-next {
             right: -20px;
         }
+
+        @media (max-width: 768px) {
+            .Bryancarrusel section .vehiculo-card {
+                flex: 0 0 100%;
+                min-width: 100%;
+                margin-right: 0;
+            }
+
+            .carrusel-nav-btn.btn-prev {
+                left: 4px;
+            }
+
+            .carrusel-nav-btn.btn-next {
+                right: 4px;
+            }
+        }
     </style>
 
     <script>

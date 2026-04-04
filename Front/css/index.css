@@ -53,8 +53,8 @@ body {
     gap: 5px;
     width: 40px;
     height: 40px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     cursor: pointer;
     padding: 0;
@@ -91,13 +91,25 @@ body {
         order: 4;
         width: 100%;
         flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
         max-height: 0;
         overflow: hidden;
         transition: max-height .35s ease;
+        padding-left: 0;
+        background: rgba(0, 0, 0, 0.15);
+        margin-right: 0;
     }
 
     .nav-links.open {
         max-height: 400px;
+    }
+
+    .nav-links a {
+        padding: 12px 20px;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 15px;
     }
 }
 
@@ -106,6 +118,32 @@ body {
     align-items: center;
     gap: 15px;
     justify-content: flex-end;
+}
+
+@media(max-width:768px) {
+    .user-actions {
+        order: 2;
+        gap: 6px;
+        margin-left: auto;
+    }
+
+    .navbar-logo {
+        order: 0;
+    }
+
+    .btn {
+        padding: 7px 12px !important;
+        font-size: 12px !important;
+    }
+
+    .leng-selector {
+        font-size: 12px;
+    }
+
+    .btn-nombre-usuario {
+        font-size: 12px !important;
+        padding: 5px 10px !important;
+    }
 }
 
 .nav-links a {
@@ -118,12 +156,6 @@ body {
 
 .nav-links a:hover {
     opacity: 0.8;
-}
-
-.user-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
 }
 
 .btn {
@@ -435,14 +467,15 @@ body {
     margin: 0 auto;
 }
 
-@media(max-width:500px){
-  .vehiculo-detalles {
-    grid-template-columns: 1fr;
-  }
-  .stats-grid {
-    grid-template-columns:
-      repeat(2,1fr);
-  }
+@media(max-width:500px) {
+    .vehiculo-detalles {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
 }
 
 .servicios-grid .stat-item {
