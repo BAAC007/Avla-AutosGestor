@@ -447,19 +447,31 @@ if ($logueado && $cliente_id) {
                 track.appendChild(t);
             });
             contenedor.appendChild(track);
-            var VISIBLES = 3,
-                contador = 0;
+            var contador = 0;
+
+            function visibles() {
+                return window.innerWidth <= 768 ? 1 : 3;
+            }
+
+            function gap() {
+                return window.innerWidth <= 768 ? 0 : 30;
+            }
 
             function maxContador() {
-                return Math.max(0, tarjetas.length - VISIBLES);
+                return Math.max(0, tarjetas.length - visibles());
             }
 
             function mover(n) {
                 contador = Math.max(0, Math.min(n, maxContador()));
-                track.style.left = -(contador * (tarjetas[0].offsetWidth + 30)) + 'px';
+                track.style.left = -(contador * (tarjetas[0].offsetWidth + gap())) + 'px';
                 btnPrev.disabled = contador === 0;
                 btnNext.disabled = contador >= maxContador();
             }
+
+            window.addEventListener('resize', function() {
+                contador = 0;
+                mover(0);
+            });
             var btnPrev = document.createElement('button');
             btnPrev.textContent = '\u2039';
             btnPrev.className = 'carrusel-nav-btn btn-prev';
