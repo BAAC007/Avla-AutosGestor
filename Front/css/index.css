@@ -14,7 +14,7 @@ body {
 .navbar {
     background: linear-gradient(135deg, #0e1c5a 0%, #2d2f3b 100%);
     color: white;
-    padding: 0 24px;
+    padding: 0 16px;
     display: flex;
     flex-wrap: wrap;
     gap: 0;
@@ -24,6 +24,15 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
+}
+
+@media(max-width: 768px) {
+    .navbar {
+        height: auto;
+        min-height: 56px;
+        padding: 8px 12px;
+        gap: 8px;
+    }
 }
 
 .navbar-logo {
