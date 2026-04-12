@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
         <form method="POST" action="index.php">
+            <?php echo csrf_campo_html(); ?>
             <h1>AVLA Admin</h1>
             <div class="controlformulario">
                 <input type="text" name="usuario" placeholder="Usuario" required autofocus>

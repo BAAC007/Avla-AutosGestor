@@ -5,13 +5,19 @@ include dirname(__DIR__, 2) . "/db.php";
 // Define la ruta base ABSOLUTA desde el DocumentRoot
 $base_url = '/admin/';
 
-// Validar ID
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: " . $base_url . "escritorio.php?error=id_invalido");
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: " . $base_url . "escritorio.php?error=metodo_no_permitido");
     exit;
 }
 
-$id = intval($_GET['id']);
+require_once dirname(__DIR__) . '/csrf.php';
+if (!csrf_verificar()) {
+    header("Location: " . $base_url . "escritorio.php?error=csrf_invalido");
+    exit;
+}
+
+$id = intval($_POST['id'] ?? 0);
 
 // Verificar pruebas de manejo
 $stmt = $conexion->prepare("SELECT id FROM prueba_manejo WHERE vehiculo_id = ? LIMIT 1");

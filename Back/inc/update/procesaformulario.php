@@ -9,6 +9,12 @@ if (!isset($_POST['id_vehiculo']) || !is_numeric($_POST['id_vehiculo'])) {
     exit;
 }
 
+require_once dirname(__DIR__) . '/csrf.php';
+if (!csrf_verificar()) {
+    header("Location: " . $base_url . "escritorio.php?error=csrf_invalido");
+    exit;
+}
+
 $id = intval($_POST['id_vehiculo']);
 
 // ══════════════════════════════════════════════════════════

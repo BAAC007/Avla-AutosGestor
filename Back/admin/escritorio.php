@@ -3,13 +3,14 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
+require_once dirname(__DIR__) . '/inc/csrf.php';
 
 if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
     header("Location: index.php?error=acceso_denegado");
     exit;
 }
 
-if (isset($_GET['accion']) && $_GET['accion'] === 'eliminar') {
+if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
     include "../inc/delete/eliminar.php";
     exit;
 }

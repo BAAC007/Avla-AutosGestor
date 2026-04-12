@@ -13,6 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+require_once dirname(__DIR__) . '/csrf.php';
+if (!csrf_verificar()) {
+    header("Location: " . $base_url . "escritorio.php?error=csrf_invalido");
+    exit;
+}
+
 // ══════════════════════════════════════════════════════════
 // 1. RECOGER Y VALIDAR DATOS
 // ══════════════════════════════════════════════════════════
