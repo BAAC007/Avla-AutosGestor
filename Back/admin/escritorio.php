@@ -3,6 +3,13 @@
 //ini_set('display_errors', 1);
 
 session_start();
+
+// Cabeceras de seguridad
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'");
+
 require_once dirname(__DIR__) . '/inc/csrf.php';
 
 if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {

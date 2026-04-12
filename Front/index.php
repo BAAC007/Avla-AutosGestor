@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+// Cabeceras de seguridad
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:");
+
 // Cambio de idioma
 if (isset($_GET['leng']) && in_array($_GET['leng'], ['es', 'en'])) {
     $_SESSION['leng'] = $_GET['leng'];
