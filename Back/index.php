@@ -127,7 +127,7 @@ switch ($action) {
             $stmt->execute([$usuario]);
             $admin = $stmt->fetch();
 
-            if ($admin && $admin['contrasena'] === $contrasena && $admin['activo'] == 1) {
+            if ($admin && password_verify($contrasena, $admin['contrasena']) && $admin['activo'] == 1) {
                 $token = base64_encode(json_encode([
                     'id'      => $admin['id'],
                     'usuario' => $admin['usuario'],
