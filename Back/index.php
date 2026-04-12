@@ -23,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 function getDBConnection() {
-    $host = getenv('DB_HOST') ?: 'sql7.freesqldatabase.com';
-    $user = getenv('DB_USER') ?: 'sql7821268';
-    $pass = getenv('DB_PASS') ?: 'MyRTakBYy4';
-    $name = getenv('DB_NAME') ?: 'sql7821268';
+    $host = getenv('DB_HOST') or die('❌ Falta variable DB_HOST');
+    $user = getenv('DB_USER') or die('❌ Falta variable DB_USER');
+    $pass = getenv('DB_PASS') or die('❌ Falta variable DB_PASS');
+    $name = getenv('DB_NAME') or die('❌ Falta variable DB_NAME');
 
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$name;charset=utf8mb4", $user, $pass, [
