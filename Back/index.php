@@ -22,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-function getDBConnection() {
+function getDBConnection()
+{
     $host = getenv('DB_HOST') or die('❌ Falta variable DB_HOST');
     $user = getenv('DB_USER') or die('❌ Falta variable DB_USER');
     $pass = getenv('DB_PASS') or die('❌ Falta variable DB_PASS');
@@ -40,14 +41,42 @@ function getDBConnection() {
     }
 }
 
-function sendResponse($data, $status = 200) {
+function sendResponse($data, $status = 200)
+{
     http_response_code($status);
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     exit;
 }
 
-function sendError($message, $status = 400) {
+function sendError($message, $status = 400)
+{
     sendResponse(['error' => true, 'message' => $message], $status);
+}
+
+function crearToken($datos)
+{
+    $secret  = getenv('JWT_SECRET') or die('❌ Falta variable JWT_SECRET');
+    $header  = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
+    $payload = base64_encode(json_encode($datos));
+    $firma   = hash_hmac('sha256', "$header.$payload", $secret);
+    return "$header.$payload.$firma";
+}
+
+function verificarToken($token)
+{
+    $secret = getenv('JWT_SECRET') or die('❌ Falta variable JWT_SECRET');
+    $partes = explode('.', $token);
+    if (count($partes) !== 3) return null;
+
+    [$header, $payload, $firma] = $partes;
+
+    $firma_esperada = hash_hmac('sha256', "$header.$payload", $secret);
+    if (!hash_equals($firma_esperada, $firma)) return null;
+
+    $datos = json_decode(base64_decode($payload), true);
+    if (!$datos || $datos['exp'] < time()) return null;
+
+    return $datos;
 }
 
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
@@ -128,11 +157,11 @@ switch ($action) {
             $admin = $stmt->fetch();
 
             if ($admin && password_verify($contrasena, $admin['contrasena']) && $admin['activo'] == 1) {
-                $token = base64_encode(json_encode([
+                $token = crearToken([
                     'id'      => $admin['id'],
                     'usuario' => $admin['usuario'],
                     'exp'     => time() + 3600
-                ]));
+                ]);
                 sendResponse([
                     'status'  => 'ok',
                     'message' => 'Login exitoso',
