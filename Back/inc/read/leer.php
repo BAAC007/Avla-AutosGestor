@@ -41,7 +41,7 @@ if (session_status() === PHP_SESSION_NONE) {
           echo "<td>" . htmlspecialchars($fila['estado']) . "</td>";
           $csrf = csrf_campo_html();
           echo "<td>
-        <a href='?accion=editar&id=" . $fila['id'] . "' class='editar'>✎</a>
+        <a href='?accion=editar&id=...' class='editar' title='Editar'>✏</a>
         <form method='POST' action='/admin/escritorio.php' style='display:inline'
               onsubmit='return confirm(\"¿Seguro que quieres eliminar este vehículo?\")'>
             {$csrf}
