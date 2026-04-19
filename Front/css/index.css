@@ -201,9 +201,10 @@ body {
 /* hero section */
 .hero {
     background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url("../imagenes/herofoto.jpg");
+    url("/imagenes/herofoto.jpg");
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat; 
     color: white;
     text-align: center;
     padding: 100px 20px;
