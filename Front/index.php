@@ -160,7 +160,6 @@ if ($logueado && $cliente_id) {
     <!-- Hero -->
     <div class="hero">
         <h2><?php echo $t['hero_titulo']; ?></h2>
-        <img src="imagenes/herofoto.jpg" alt="Concesionario AVLA" style="display:none;">
         <p><?php echo $t['hero_subtitulo']; ?></p>
         <a href="#vehiculos" class="btn-hero"><?php echo $t['hero_btn_ver']; ?></a>
         <?php if (!$logueado): ?>
