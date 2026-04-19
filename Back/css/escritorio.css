@@ -271,6 +271,11 @@ form {
   border: 1px solid #e5e7eb;
 }
 
+form.form-eliminar {
+  all: unset;
+  display: inline;
+}
+
 .controlformulario {
   display: flex;
   flex-direction: column;
