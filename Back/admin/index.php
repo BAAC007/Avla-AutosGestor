@@ -10,25 +10,29 @@ if (isset($_SESSION['es_admin']) && $_SESSION['es_admin'] === true) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuario    = trim($_POST['usuario']    ?? '');
-    $contrasena = $_POST['contrasena'] ?? '';
-
-    $stmt = $conexion->prepare("SELECT id, usuario, nombre_completo, activo FROM administrador WHERE usuario = ? AND contrasena = ? LIMIT 1");
-    $stmt->bind_param("ss", $usuario, $contrasena);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-    $admin     = $resultado->fetch_assoc();
-    $stmt->close();
-
-    if ($admin && $admin['activo'] == 1) {
-        $_SESSION['admin_id']      = $admin['id'];
-        $_SESSION['admin_usuario'] = $admin['usuario'];
-        $_SESSION['admin_nombre']  = $admin['nombre_completo'];
-        $_SESSION['es_admin']      = true;
-        header("Location: escritorio.php");
-        exit;
+    if (!csrf_verificar()) {
+        $error = "Token de seguridad inválido. Recarga la página e inténtalo de nuevo.";
     } else {
-        $error = "Usuario o contraseña incorrectos";
+        $usuario    = trim($_POST['usuario']    ?? '');
+        $contrasena = $_POST['contrasena'] ?? '';
+
+        $stmt = $conexion->prepare("SELECT id, usuario, nombre_completo, activo FROM administrador WHERE usuario = ? AND contrasena = ? LIMIT 1");
+        $stmt->bind_param("ss", $usuario, $contrasena);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $admin     = $resultado->fetch_assoc();
+        $stmt->close();
+
+        if ($admin && $admin['activo'] == 1) {
+            $_SESSION['admin_id']      = $admin['id'];
+            $_SESSION['admin_usuario'] = $admin['usuario'];
+            $_SESSION['admin_nombre']  = $admin['nombre_completo'];
+            $_SESSION['es_admin']      = true;
+            header("Location: escritorio.php");
+            exit;
+        } else {
+            $error = "Usuario o contraseña incorrectos";
+        }
     }
 }
 ?>
