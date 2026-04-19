@@ -1,6 +1,6 @@
 <?php
 include dirname(__DIR__, 2) . "/db.php";
-require_once dirname(__DIR__) . '/inc/csrf.php';
+require_once dirname(__DIR__) . '/csrf.php';
 
 // Validar ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {

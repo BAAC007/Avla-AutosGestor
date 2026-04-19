@@ -1,6 +1,6 @@
 <?php
 include dirname(__DIR__, 2) . "/db.php";
-require_once dirname(__DIR__) . '/inc/csrf.php';
+require_once dirname(__DIR__) . '/csrf.php';
 
 // Obtener marcas, modelos, accesorios y clientes
 $marcas     = $conexion->query("SELECT id, nombre FROM marca ORDER BY nombre ASC");
