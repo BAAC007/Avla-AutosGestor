@@ -23,12 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resultado = $stmt->get_result();
         $admin = $resultado->fetch_assoc();
 
-        // DEBUG TEMPORAL - borrar después
-        var_dump($admin);
-        var_dump(password_verify($contrasena, $admin['contrasena'] ?? ''));
-        die();
-        $stmt->close();
-
         // Verificar contraseña hasheada
         if ($admin && $admin['activo'] == 1 && password_verify($contrasena, $admin['contrasena'])) {
             $_SESSION['admin_id']      = $admin['id'];
