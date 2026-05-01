@@ -3,7 +3,7 @@ session_start();
 
 if (isset($_GET['leng']) && in_array($_GET['leng'], ['es', 'en'])) {
     $_SESSION['leng'] = $_GET['leng'];
-    header('Location: index.php');
+    header('Location: vehiculos.php');
     exit;
 }
 
