@@ -21,11 +21,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "SELECT id, usuario, nombre_completo, contrasena, activo 
      FROM administrador WHERE usuario = ? LIMIT 1"
         );
+        // Buscar solo por usuario
+        $stmt = $conexion->prepare("SELECT id, usuario, nombre_completo, contrasena, activo FROM administrador WHERE usuario = ? LIMIT 1");
         $stmt->bind_param("s", $usuario);
         $stmt->execute();
-        $admin = $stmt->get_result()->fetch_assoc();
+        $resultado = $stmt->get_result();
+        $admin = $resultado->fetch_assoc();
         $stmt->close();
 
+        // Verificar contraseña hasheada
         if ($admin && $admin['activo'] == 1 && password_verify($contrasena, $admin['contrasena'])) {
             $_SESSION['admin_id']      = $admin['id'];
             $_SESSION['admin_usuario'] = $admin['usuario'];
