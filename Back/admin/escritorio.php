@@ -24,11 +24,13 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
 ?>
 <!doctype html>
 <html lang="es">
+
 <head>
     <title>AVLA Autosgestor - Admin</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/back-css/escritorio.css">
 </head>
+
 <body>
     <nav>
         <h2>Avla Autosgestor</h2>
@@ -48,6 +50,12 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
                 'eliminacion_fallida'          => 'No se pudo eliminar el vehículo',
                 'tiene_pruebas_manejo'         => 'No se puede eliminar: este vehículo tiene pruebas de manejo registradas',
                 'tiene_registros_relacionados' => 'No se puede eliminar: el vehículo tiene registros asociados',
+                'csrf_invalido'     => 'Token de seguridad inválido. Recarga la página.',
+                'faltan_campos'     => 'Faltan campos obligatorios',
+                'vin_invalido'      => 'El VIN debe tener exactamente 17 caracteres',
+                'creacion_fallida'  => 'No se pudo registrar el vehículo',
+                'actualizacion_fallida' => 'No se pudo actualizar el vehículo',
+                'metodo_no_permitido'   => 'Método de solicitud no permitido',
             ];
             echo htmlspecialchars($errores[$_GET['error']] ?? 'Ocurrió un error');
             echo "</div>";
@@ -80,4 +88,5 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
         <?php endif; ?>
     </main>
 </body>
+
 </html>

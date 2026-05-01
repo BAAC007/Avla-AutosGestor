@@ -11,7 +11,7 @@ define('DB_USER', getenv('DB_USER') ?: die('❌ Falta variable DB_USER'));
 define('DB_PASS', getenv('DB_PASS') ?: die('❌ Falta variable DB_PASS'));
 define('DB_CHARSET', 'utf8mb4');
 
-$conexion = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, 61032);
+$conexion = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, (int)DB_PORT);
 
 if ($conexion->connect_error) {
     error_log("Error de conexión MySQLi: " . $conexion->connect_error);

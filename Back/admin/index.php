@@ -17,14 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $usuario    = trim($_POST['usuario']    ?? '');
         $contrasena = $_POST['contrasena'] ?? '';
 
-        $stmt = $conexion->prepare("SELECT id, usuario, nombre_completo, activo FROM administrador WHERE usuario = ? AND contrasena = ? LIMIT 1");
-        $stmt->bind_param("ss", $usuario, $contrasena);
+        $stmt = $conexion->prepare(
+            "SELECT id, usuario, nombre_completo, contrasena, activo 
+     FROM administrador WHERE usuario = ? LIMIT 1"
+        );
+        $stmt->bind_param("s", $usuario);
         $stmt->execute();
-        $resultado = $stmt->get_result();
-        $admin     = $resultado->fetch_assoc();
+        $admin = $stmt->get_result()->fetch_assoc();
         $stmt->close();
 
-        if ($admin && $admin['activo'] == 1) {
+        if ($admin && $admin['activo'] == 1 && password_verify($contrasena, $admin['contrasena'])) {
             $_SESSION['admin_id']      = $admin['id'];
             $_SESSION['admin_usuario'] = $admin['usuario'];
             $_SESSION['admin_nombre']  = $admin['nombre_completo'];
@@ -39,11 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Login Admin - AVLA Autosgestor</title>
     <link rel="stylesheet" href="/back-css/index.css">
 </head>
+
 <body>
     <div class="login-box">
         <?php if ($error): ?>
@@ -62,4 +66,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </body>
+
 </html>
