@@ -16,11 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $usuario    = trim($_POST['usuario']    ?? '');
         $contrasena = $_POST['contrasena'] ?? '';
-
-        $stmt = $conexion->prepare(
-            "SELECT id, usuario, nombre_completo, contrasena, activo 
-     FROM administrador WHERE usuario = ? LIMIT 1"
-        );
         // Buscar solo por usuario
         $stmt = $conexion->prepare("SELECT id, usuario, nombre_completo, contrasena, activo FROM administrador WHERE usuario = ? LIMIT 1");
         $stmt->bind_param("s", $usuario);
