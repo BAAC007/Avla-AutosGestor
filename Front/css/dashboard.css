@@ -47,7 +47,6 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    border-top: 50px;
 }
 
 .header h1 {
