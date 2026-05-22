@@ -45,6 +45,7 @@ while ($p = $res_pruebas->fetch_assoc()) {
 
 <form action="/api/inc/update/procesaformulario.php" method="POST" id="formActualizar">
     <input type="hidden" name="id_vehiculo" value="<?= $fila['id'] ?>">
+    <?= csrf_campo_html() ?>
 
     <!-- ══════════════════════════════════════════════════ -->
     <!-- SECCIÓN 1: DATOS DEL VEHÍCULO                      -->

@@ -10,10 +10,11 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
 ?>
 
 <form action="/api/inc/create/procesaformulario.php" method="POST" id="formVehiculo">
-
+    <?= csrf_campo_html() ?>
     <!-- ══════════════════════════════════════════════════ -->
     <!-- SECCIÓN 1: DATOS DEL VEHÍCULO                      -->
     <!-- ══════════════════════════════════════════════════ -->
+
     <div class="form-seccion">
         <h3 class="form-seccion-titulo"> Datos del Vehículo</h3>
 
