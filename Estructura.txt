@@ -1,0 +1,54 @@
+Directory structure:
+└── baac007-avla-autosgestor/
+    ├── README.md
+    ├── Dockerfile
+    ├── Local-deploy.gitignore
+    ├── Resumen.txt
+    ├── Back/
+    │   ├── db.php
+    │   ├── health.php
+    │   ├── index.php
+    │   ├── admin/
+    │   │   ├── escritorio.php
+    │   │   ├── index.php
+    │   │   └── logout.php
+    │   ├── config/
+    │   │   └── cors.php
+    │   ├── css/
+    │   │   ├── escritorio.css
+    │   │   └── index.css
+    │   ├── inc/
+    │   │   ├── csrf.php
+    │   │   ├── create/
+    │   │   │   ├── formulario.php
+    │   │   │   └── procesaformulario.php
+    │   │   ├── delete/
+    │   │   │   └── eliminar.php
+    │   │   ├── read/
+    │   │   │   └── leer.php
+    │   │   └── update/
+    │   │       ├── formularioactualizar.php
+    │   │       └── procesaformulario.php
+    │   └── sql/
+    │       └── bbd.sql
+    └── Front/
+        ├── dashboard.php
+        ├── editar_perfil.php
+        ├── health.php
+        ├── index.php
+        ├── login.php
+        ├── logout.php
+        ├── register.php
+        ├── vehiculo_detalle.php
+        ├── vehiculos.php
+        ├── css/
+        │   ├── dashboard.css
+        │   ├── editar_perfil.css
+        │   ├── index.css
+        │   ├── login.css
+        │   └── register.css
+        ├── js/
+        │   └── api.js
+        └── leng/
+            ├── en.json
+            └── es.json
