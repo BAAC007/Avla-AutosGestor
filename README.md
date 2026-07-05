@@ -4,7 +4,7 @@ Plataforma web de gestión para un concesionario de coches,
 desarrollada como proyecto final del primer curso de Desarrollo 
 de Aplicaciones Web (DAW).
 
-🔗 **Demo en vivo:** https://avla-autosgestor.onrender.com/
+**Demo en vivo:** https://avla-autosgestor.onrender.com/
 
 ## Descripción
 
@@ -50,4 +50,4 @@ La aplicación cuenta con dos áreas diferenciadas:
 ## Autor
 
 **Bryan Avila** — Estudiante de DAW  
-[LinkedIn](https://www.linkedin.com/in/bryan-avila-12105b347/) · [Portafolio](https://baac007.github.io/Portafolio25/portafolio.html)
+[LinkedIn](https://www.linkedin.com/in/bryan-avila-12105b347/) · [Portafolio](https://baac007.github.io/)
