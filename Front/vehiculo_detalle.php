@@ -18,7 +18,9 @@ if ($id <= 0) {
 
 // Obtener datos completos del vehiculo
 $stmt = $conexion->prepare("
-    SELECT v.id, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen, v.vin, v.fecha_ingreso,
+    SELECT v.id, v.precio, v.anio, v.color, v.kilometraje, v.estado, v.disponibilidad, v.imagen, v.vin, v.fecha_ingreso,
+           v.combustible, v.transmision, v.potencia_cv, v.puertas, v.plazas, v.etiqueta_dgt,
+           v.propietarios_anteriores, v.garantia_meses, v.descripcion,
            m.nombre  AS marca_nombre,
            m.pais_origen,
            mo.nombre AS modelo_nombre,
@@ -26,7 +28,7 @@ $stmt = $conexion->prepare("
     FROM vehiculo v
     INNER JOIN marca m   ON v.marca_id  = m.id
     INNER JOIN modelo mo ON v.modelo_id = mo.id
-    WHERE v.id = ? AND v.estado IN ('nuevo', 'usado')
+    WHERE v.id = ? AND v.disponibilidad <> 'vendido'
 ");
 $stmt->bind_param('i', $id);
 $stmt->execute();
@@ -40,14 +42,14 @@ if (!$v) {
 
 // Vehiculos relacionados (misma marca, distinto id)
 $stmt2 = $conexion->prepare("
-    SELECT v.id, v.precio, v.año, v.color, v.estado, v.imagen,
+    SELECT v.id, v.precio, v.anio, v.color, v.estado, v.imagen,
            m.nombre AS marca_nombre, mo.nombre AS modelo_nombre
     FROM vehiculo v
     INNER JOIN marca m   ON v.marca_id  = m.id
     INNER JOIN modelo mo ON v.modelo_id = mo.id
     WHERE v.marca_id = (SELECT marca_id FROM vehiculo WHERE id = ?)
       AND v.id != ?
-      AND v.estado IN ('nuevo', 'usado')
+      AND v.disponibilidad <> 'vendido'
     LIMIT 3
 ");
 $stmt2->bind_param('ii', $id, $id);
@@ -322,7 +324,7 @@ $stmt2->close();
             <div class="specs-grid">
                 <div class="spec-item">
                     <div class="spec-label">Año</div>
-                    <div class="spec-value"><?php echo $v['año']; ?></div>
+                    <div class="spec-value"><?php echo $v['anio']; ?></div>
                 </div>
                 <div class="spec-item">
                     <div class="spec-label">Kilometros</div>
@@ -338,7 +340,11 @@ $stmt2->close();
                 </div>
             </div>
 
-            <?php if ($logueado): ?>
+            <?php if ($v['disponibilidad'] === 'reservado'): ?>
+                <p style="background:#fff3cd;color:#856404;padding:10px 14px;border-radius:8px;margin:12px 0;">
+                    Este vehículo está reservado actualmente. Contacta con un asesor para conocer su disponibilidad.
+                </p>
+            <?php elseif ($logueado): ?>
                 <a href="dashboard.php#agendar" class="btn-agendar">Agendar Prueba de Manejo</a>
             <?php else: ?>
                 <a href="login.php" class="btn-agendar">Iniciar Sesion para Agendar</a>
@@ -355,16 +361,34 @@ $stmt2->close();
     <table class="ficha-table">
         <tr><td>Marca</td>         <td><?php echo htmlspecialchars($v['marca_nombre']); ?></td></tr>
         <tr><td>Modelo</td>        <td><?php echo htmlspecialchars($v['modelo_nombre']); ?></td></tr>
-        <tr><td>Año</td>           <td><?php echo $v['año']; ?></td></tr>
+        <tr><td>Año</td>           <td><?php echo $v['anio']; ?></td></tr>
         <tr><td>Tipo</td>          <td><?php echo htmlspecialchars($v['tipo'] ?? '-'); ?></td></tr>
         <tr><td>Color</td>         <td><?php echo htmlspecialchars($v['color']); ?></td></tr>
         <tr><td>Kilometraje</td>   <td><?php echo number_format($v['kilometraje'], 0, ',', '.'); ?> km</td></tr>
         <tr><td>Estado</td>        <td><?php echo $v['estado'] === 'nuevo' ? 'Nuevo' : 'Usado'; ?></td></tr>
+        <?php
+        $extra = [
+            'Combustible'             => $v['combustible'] ? ucfirst($v['combustible']) : null,
+            'Transmisión'             => $v['transmision'] ? ucfirst($v['transmision']) : null,
+            'Potencia'                => $v['potencia_cv'] ? $v['potencia_cv'] . ' CV' : null,
+            'Puertas'                 => $v['puertas'],
+            'Plazas'                  => $v['plazas'],
+            'Etiqueta ambiental DGT'  => $v['etiqueta_dgt'] === 'SIN' ? 'Sin etiqueta' : $v['etiqueta_dgt'],
+            'Propietarios anteriores' => $v['estado'] === 'usado' ? $v['propietarios_anteriores'] : null,
+            'Garantía'                => $v['garantia_meses'] > 0 ? $v['garantia_meses'] . ' meses' : null,
+        ];
+        foreach ($extra as $etiqueta => $valor):
+            if ($valor === null || $valor === '') continue; ?>
+        <tr><td><?php echo $etiqueta; ?></td><td><?php echo htmlspecialchars((string)$valor); ?></td></tr>
+        <?php endforeach; ?>
         <tr><td>Pais de origen</td><td><?php echo htmlspecialchars($v['pais_origen'] ?? '-'); ?></td></tr>
         <tr><td>VIN</td>           <td><?php echo htmlspecialchars($v['vin']); ?></td></tr>
         <tr><td>Fecha de ingreso</td><td><?php echo date('d/m/Y', strtotime($v['fecha_ingreso'])); ?></td></tr>
         <tr><td>Precio</td>        <td style="color:#667eea;font-size:18px;">&#8364;<?php echo number_format($v['precio'], 2, ',', '.'); ?></td></tr>
     </table>
+    <?php if (!empty($v['descripcion'])): ?>
+        <p style="margin-top:18px;line-height:1.6;"><?php echo nl2br(htmlspecialchars($v['descripcion'])); ?></p>
+    <?php endif; ?>
 </div>
 
 <!-- Vehiculos relacionados -->

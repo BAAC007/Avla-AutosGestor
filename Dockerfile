@@ -5,11 +5,16 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 # Habilitar mod_rewrite y alias
 RUN a2enmod rewrite alias
 
-# Copiar TODO el proyecto
+# Endurecimiento de PHP (sesiones, errores, cabeceras)
+COPY docker/php-hardening.ini /usr/local/etc/php/conf.d/zz-hardening.ini
+
+# Copiar el proyecto (ver .dockerignore: no entran .git ni .env)
 COPY . /var/www/html/
 
 # Configurar Apache
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+ && echo "ServerTokens Prod" >> /etc/apache2/apache2.conf \
+ && echo "ServerSignature Off" >> /etc/apache2/apache2.conf
 
 # Crear VirtualHost con todas las rutas correctas
 RUN cat > /etc/apache2/sites-available/000-default.conf << 'VHOST'
@@ -40,6 +45,13 @@ RUN cat > /etc/apache2/sites-available/000-default.conf << 'VHOST'
 
     Alias /back-css /var/www/html/Back/css
     <Directory /var/www/html/Back/css>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    Alias /back-js /var/www/html/Back/js
+    <Directory /var/www/html/Back/js>
         Options -Indexes +FollowSymLinks
         AllowOverride All
         Require all granted

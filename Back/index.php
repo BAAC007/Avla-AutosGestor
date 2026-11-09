@@ -10,9 +10,8 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins, true)) {
     header("Access-Control-Allow-Origin: $origin");
     header("Vary: Origin");
-} else {
-    header("Access-Control-Allow-Origin: *");
 }
+// Sin origen permitido no se envía Access-Control-Allow-Origin (antes caía en "*")
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept');
 header('Access-Control-Max-Age: 86400');
@@ -28,9 +27,10 @@ function getDBConnection()
     $user = getenv('DB_USER') or die('❌ Falta variable DB_USER');
     $pass = getenv('DB_PASS') or die('❌ Falta variable DB_PASS');
     $name = getenv('DB_NAME') or die('❌ Falta variable DB_NAME');
+    $port = (int)(getenv('DB_PORT') ?: 3306);
 
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$name;charset=utf8mb4", $user, $pass, [
+        $pdo = new PDO("mysql:host=$host;port=$port;dbname=$name;charset=utf8mb4", $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
@@ -53,12 +53,22 @@ function sendError($message, $status = 400)
     sendResponse(['error' => true, 'message' => $message], $status);
 }
 
+function b64url_encode($data)
+{
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+function b64url_decode($data)
+{
+    return base64_decode(strtr($data, '-_', '+/'));
+}
+
 function crearToken($datos)
 {
     $secret  = getenv('JWT_SECRET') or die('❌ Falta variable JWT_SECRET');
-    $header  = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
-    $payload = base64_encode(json_encode($datos));
-    $firma   = hash_hmac('sha256', "$header.$payload", $secret);
+    $header  = b64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
+    $payload = b64url_encode(json_encode($datos));
+    $firma   = b64url_encode(hash_hmac('sha256', "$header.$payload", $secret, true));
     return "$header.$payload.$firma";
 }
 
@@ -70,11 +80,14 @@ function verificarToken($token)
 
     [$header, $payload, $firma] = $partes;
 
-    $firma_esperada = hash_hmac('sha256', "$header.$payload", $secret);
+    $cabecera = json_decode(b64url_decode($header), true);
+    if (($cabecera['alg'] ?? '') !== 'HS256') return null;
+
+    $firma_esperada = b64url_encode(hash_hmac('sha256', "$header.$payload", $secret, true));
     if (!hash_equals($firma_esperada, $firma)) return null;
 
-    $datos = json_decode(base64_decode($payload), true);
-    if (!$datos || $datos['exp'] < time()) return null;
+    $datos = json_decode(b64url_decode($payload), true);
+    if (!$datos || !isset($datos['exp']) || $datos['exp'] < time()) return null;
 
     return $datos;
 }
@@ -98,12 +111,13 @@ switch ($action) {
 
         try {
             $stmt = $pdo->prepare("
-                SELECT v.id, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen,
+                SELECT v.id, v.precio, v.anio, v.color, v.kilometraje, v.estado, v.disponibilidad, v.imagen,
+                       v.combustible, v.transmision, v.potencia_cv, v.etiqueta_dgt,
                        m.nombre as marca, mo.nombre as modelo
                 FROM vehiculo v
                 INNER JOIN marca m ON v.marca_id = m.id
                 INNER JOIN modelo mo ON v.modelo_id = mo.id
-                WHERE v.estado IN ('nuevo', 'usado')
+                WHERE v.disponibilidad <> 'vendido'
                 ORDER BY v.fecha_ingreso DESC
             ");
             $stmt->execute();
@@ -124,12 +138,14 @@ switch ($action) {
 
         try {
             $stmt = $pdo->prepare("
-                SELECT v.id, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen, v.vin,
+                SELECT v.id, v.precio, v.anio, v.color, v.kilometraje, v.estado, v.disponibilidad, v.imagen, v.vin,
+                       v.matricula, v.combustible, v.transmision, v.potencia_cv, v.puertas, v.plazas,
+                       v.etiqueta_dgt, v.propietarios_anteriores, v.garantia_meses, v.descripcion,
                        m.nombre as marca, mo.nombre as modelo, mo.tipo as tipo
                 FROM vehiculo v
                 INNER JOIN marca m ON v.marca_id = m.id
                 INNER JOIN modelo mo ON v.modelo_id = mo.id
-                WHERE v.id = ?
+                WHERE v.id = ? AND v.disponibilidad <> 'vendido'
             ");
             $stmt->execute([$id]);
             $vehicle = $stmt->fetch();
@@ -148,6 +164,13 @@ switch ($action) {
 
         if (empty($usuario) || empty($contrasena)) sendError('Usuario y contraseña son requeridos', 400);
 
+        // Límite de intentos fallidos (mismo mecanismo que el login web del admin)
+        require_once __DIR__ . '/db.php';
+        require_once __DIR__ . '/inc/throttle.php';
+        if (login_bloqueado($conexion, 'admin', $usuario)) {
+            sendError(LOGIN_MSG_BLOQUEO, 429);
+        }
+
         $pdo = getDBConnection();
         if (!$pdo) sendError('Error de conexión a la base de datos', 500);
 
@@ -157,6 +180,7 @@ switch ($action) {
             $admin = $stmt->fetch();
 
             if ($admin && password_verify($contrasena, $admin['contrasena']) && $admin['activo'] == 1) {
+                login_limpiar($conexion, 'admin', $usuario); // antes de sendResponse(), que hace exit
                 $token = crearToken([
                     'id'      => $admin['id'],
                     'usuario' => $admin['usuario'],
@@ -175,6 +199,7 @@ switch ($action) {
                     ]
                 ]);
             } else {
+                login_registrar_fallo($conexion, 'admin', $usuario);
                 sendError('Credenciales incorrectas', 401);
             }
         } catch (Exception $e) {

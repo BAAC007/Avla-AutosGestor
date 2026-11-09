@@ -33,7 +33,7 @@ $res = $conexion->query("SELECT id, nombre FROM marca ORDER BY nombre");
 if ($res) while ($f = $res->fetch_assoc()) $marcas[] = $f;
 
 // Query con filtros dinamicos
-$where  = ["v.estado IN ('nuevo', 'usado')"];
+$where  = ["v.disponibilidad <> 'vendido'"];
 $params = [];
 $tipos  = '';
 
@@ -42,7 +42,7 @@ if ($filtro_marca > 0) {
     $params[] = $filtro_marca;
     $tipos   .= 'i';
 }
-if ($filtro_estado !== '') {
+if (in_array($filtro_estado, ['nuevo', 'usado'], true)) {
     $where[]  = 'v.estado = ?';
     $params[] = $filtro_estado;
     $tipos   .= 's';
@@ -62,7 +62,8 @@ if ($filtro_buscar !== '') {
 }
 
 $sql = "
-    SELECT v.id, v.precio, v.anio, v.color, v.kilometraje, v.estado, v.imagen,
+    SELECT v.id, v.precio, v.anio, v.color, v.kilometraje, v.estado, v.disponibilidad, v.imagen,
+           v.combustible, v.transmision, v.potencia_cv,
            m.nombre AS marca_nombre,
            mo.nombre AS modelo_nombre,
            mo.tipo AS tipo
@@ -72,9 +73,6 @@ $sql = "
     WHERE " . implode(' AND ', $where) . "
     ORDER BY v.fecha_ingreso DESC
 ";
-
-// MySQL usa el nombre de columna real: año (con tilde)
-$sql = str_replace('v.anio', 'v.año', $sql);
 
 $vehiculos = [];
 if (!empty($params)) {
@@ -464,12 +462,24 @@ if ($res) while ($f = $res->fetch_assoc()) $vehiculos[] = $f;
                             <span class="badge-estado badge-<?php echo $v['estado']; ?>">
                                 <?php echo $v['estado'] === 'nuevo' ? 'Nuevo' : 'Usado'; ?>
                             </span>
+                            <?php if ($v['disponibilidad'] === 'reservado'): ?>
+                                <span class="badge-estado" style="background:#fff3cd;color:#856404;">Reservado</span>
+                            <?php endif; ?>
                         </div>
                         <div class="vehiculo-modelo"><?php echo htmlspecialchars($v['modelo_nombre']); ?></div>
+                        <?php
+                        $resumen = array_filter([
+                            $v['combustible'] ? ucfirst($v['combustible']) : null,
+                            $v['transmision'] ? ucfirst($v['transmision']) : null,
+                            $v['potencia_cv'] ? $v['potencia_cv'] . ' CV' : null,
+                        ]);
+                        if ($resumen): ?>
+                            <div style="font-size:12px;color:#7f8c8d;margin:-2px 0 8px;"><?php echo htmlspecialchars(implode(' · ', $resumen)); ?></div>
+                        <?php endif; ?>
                         <div class="vehiculo-detalles">
                             <div class="detalle-item">
                                 <span class="detalle-label">Año</span>
-                                <span class="detalle-value"><?php echo $v['año']; ?></span>
+                                <span class="detalle-value"><?php echo $v['anio']; ?></span>
                             </div>
                             <div class="detalle-item">
                                 <span class="detalle-label">Kilometros</span>

@@ -1,6 +1,8 @@
 <?php
-include dirname(__DIR__, 2) . "/db.php";
-require_once dirname(__DIR__, 2) . '/inc/csrf.php';
+require_once dirname(__DIR__) . '/auth.php';
+requerir_admin();
+include_once dirname(__DIR__, 2) . "/db.php";
+require_once dirname(__DIR__) . '/csrf.php';
 
 // Validar ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
@@ -9,11 +11,14 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $id = intval($_GET['id']);
 
 // Cargar vehículo
-$resultado = $conexion->query("SELECT * FROM vehiculo WHERE id = $id");
-if (!$resultado || $resultado->num_rows === 0) {
+$stmt_v = $conexion->prepare("SELECT * FROM vehiculo WHERE id = ?");
+$stmt_v->bind_param("i", $id);
+$stmt_v->execute();
+$fila = $stmt_v->get_result()->fetch_assoc();
+$stmt_v->close();
+if (!$fila) {
     die("❌ Vehículo no encontrado");
 }
-$fila = $resultado->fetch_assoc();
 
 // Listas desplegables
 $marcas  = $conexion->query("SELECT id, nombre FROM marca ORDER BY nombre ASC");
@@ -43,7 +48,8 @@ while ($p = $res_pruebas->fetch_assoc()) {
 }
 ?>
 
-<form action="/api/inc/update/procesaformulario.php" method="POST" id="formActualizar">
+<form action="/admin/escritorio.php" method="POST" id="formActualizar">
+    <input type="hidden" name="accion" value="actualizar">
     <input type="hidden" name="id_vehiculo" value="<?= $fila['id'] ?>">
     <?= csrf_campo_html() ?>
 
@@ -78,9 +84,9 @@ while ($p = $res_pruebas->fetch_assoc()) {
         </div>
 
         <div class="controlformulario">
-            <label for="año">Año</label>
-            <input type="number" name="año" id="año" min="1900" max="2100"
-                   value="<?= htmlspecialchars($fila['año']) ?>" required>
+            <label for="anio">Año</label>
+            <input type="number" name="anio" id="anio" min="1900" max="2100"
+                   value="<?= htmlspecialchars($fila['anio']) ?>" required>
         </div>
 
         <div class="controlformulario">
@@ -122,6 +128,8 @@ while ($p = $res_pruebas->fetch_assoc()) {
             <input type="date" name="fecha_ingreso" id="fecha_ingreso"
                    value="<?= htmlspecialchars($fila['fecha_ingreso']) ?>">
         </div>
+
+        <?php include dirname(__DIR__) . '/vehiculo_campos.php'; ?>
     </div>
 
     <!-- ══════════════════════════════════════════════════ -->
@@ -172,7 +180,7 @@ while ($p = $res_pruebas->fetch_assoc()) {
             Las pruebas existentes se muestran precargadas. Puedes modificarlas, eliminarlas (marcando el checkbox) o añadir nuevas.
         </p>
 
-        <div id="pruebas-container">
+        <div id="pruebas-container" data-hoy="<?= date('Y-m-d') ?>">
 
             <?php if (!empty($pruebas_actuales)): ?>
             <!-- ── Pruebas EXISTENTES ── -->
@@ -231,7 +239,7 @@ while ($p = $res_pruebas->fetch_assoc()) {
                 <div class="prueba-item prueba-nueva">
                     <div class="prueba-header">
                         <span>Nueva prueba <span class="badge-nueva">Nueva</span></span>
-                        <button type="button" class="btn-eliminar-prueba" onclick="eliminarPruebaElemento(this)">✕ Quitar</button>
+                        <button type="button" class="btn-eliminar-prueba" data-accion="remove-prueba-nueva">✕ Quitar</button>
                     </div>
                     <!-- ID = 0 para indicar que es nueva (no existe en BD) -->
                     <input type="hidden" name="prueba_id[]" value="0">
@@ -268,7 +276,7 @@ while ($p = $res_pruebas->fetch_assoc()) {
             </template>
         </div>
 
-        <button type="button" class="btn-añadir-prueba" onclick="añadirNuevaPrueba()">
+        <button type="button" class="btn-añadir-prueba" data-accion="add-prueba-nueva">
             + Añadir nueva prueba de manejo
         </button>
     </div>
@@ -280,28 +288,4 @@ while ($p = $res_pruebas->fetch_assoc()) {
 
 </form>
 
-<script>
-// --- ACCESORIOS ---
-document.querySelectorAll('.acc-check').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
-        var id = this.dataset.id;
-        var div = document.getElementById('instalacion-' + id);
-        div.style.display = this.checked ? 'block' : 'none';
-        if (!this.checked) {
-            div.querySelector('input').value = 0;
-        }
-    });
-});
-
-// --- PRUEBAS: añadir nueva ---
-function añadirNuevaPrueba() {
-    var plantilla = document.getElementById('plantilla-prueba');
-    var clon = plantilla.content.cloneNode(true);
-    document.getElementById('pruebas-container').appendChild(clon);
-}
-
-// --- PRUEBAS: quitar nueva antes de guardar ---
-function eliminarPruebaElemento(btn) {
-    btn.closest('.prueba-item').remove();
-}
-</script>
+<!-- La lógica de accesorios y pruebas está en /back-js/escritorio.js -->

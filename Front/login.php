@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once dirname(__DIR__) . '/Back/db.php';
+require_once dirname(__DIR__) . '/Back/inc/csrf.php';
+require_once dirname(__DIR__) . '/Back/inc/throttle.php';
 
 $mensaje = '';
 $error   = '';
@@ -13,37 +15,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario    = trim($_POST['usuario']   ?? '');
     $contrasena = $_POST['contrasena'] ?? '';
 
-    if (empty($usuario) || empty($contrasena)) {
+    if (!csrf_verificar()) {
+        $error = "Token de seguridad inválido. Recarga la página e inténtalo de nuevo.";
+    } elseif (empty($usuario) || empty($contrasena)) {
         $error = "Por favor, complete todos los campos";
+    } elseif (login_bloqueado($conexion, 'cliente', $usuario)) {
+        $error = LOGIN_MSG_BLOQUEO;
     } else {
         $stmt = $conexion->prepare("
-            SELECT id, nombre, contrasena, email
+            SELECT id, nombre, contrasena, email, activo
             FROM cliente
             WHERE usuario = ?
             LIMIT 1
         ");
+        $stmt->bind_param("s", $usuario);
+        $stmt->execute();
+        $cliente = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
 
-        if ($stmt) {
-            $stmt->bind_param("s", $usuario);
-            $stmt->execute();
-            $resultado = $stmt->get_result();
-            $cliente   = $resultado->fetch_assoc();
-            $stmt->close();
+        // Se verifica siempre un hash para no delatar qué usuarios existen por el tiempo de respuesta
+        $hash_ok = password_verify($contrasena, $cliente['contrasena'] ?? '$2y$10$aSu6ff8WFHxVfn6H9EyJ7.eLtAT0gj8MCA15dT6D08HrtBiEW0XCi');
 
-            if ($cliente && password_verify($contrasena, $cliente['contrasena'])) {
-                $_SESSION['cliente_id']     = $cliente['id'];
-                $_SESSION['cliente_nombre'] = $cliente['nombre'];
-                $_SESSION['cliente_email']  = $cliente['email'];
-                $_SESSION['logueado']       = true;
-                header('Location: dashboard.php');
-                exit();
-            } else {
-                $error = "Usuario o contraseña incorrectos";
-            }
-        } else {
-            $error = "Error en el sistema. Intente nuevamente.";
-            error_log("Error login: " . $conexion->error);
+        if ($cliente && $cliente['activo'] == 1 && $hash_ok) {
+            session_regenerate_id(true);   // evita la fijación de sesión
+            $_SESSION['cliente_id']     = $cliente['id'];
+            $_SESSION['cliente_nombre'] = $cliente['nombre'];
+            $_SESSION['cliente_email']  = $cliente['email'];
+            $_SESSION['logueado']       = true;
+
+            $upd = $conexion->prepare("UPDATE cliente SET ultimo_acceso = NOW() WHERE id = ?");
+            $upd->bind_param("i", $cliente['id']);
+            $upd->execute();
+            $upd->close();
+
+            login_limpiar($conexion, 'cliente', $usuario);
+            header('Location: dashboard.php');
+            exit();
         }
+
+        login_registrar_fallo($conexion, 'cliente', $usuario);
+        $error = "Usuario o contraseña incorrectos";
     }
 }
 ?>
@@ -62,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <form action="login.php" method="POST">
+            <?php echo csrf_campo_html(); ?>
             <?php if ($error): ?>
                 <div class="mensaje error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>

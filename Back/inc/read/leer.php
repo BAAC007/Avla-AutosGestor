@@ -21,7 +21,7 @@ if (session_status() === PHP_SESSION_NONE) {
       <?php
       include dirname(__DIR__, 2) . "/db.php";
 
-      $sql = "SELECT v.id, v.vin, v.año, v.precio, v.estado, 
+      $sql = "SELECT v.id, v.vin, v.anio, v.precio, v.estado, v.disponibilidad,
                m.nombre as marca_nombre, mo.nombre as modelo_nombre
         FROM vehiculo v
         LEFT JOIN marca m ON v.marca_id = m.id
@@ -35,15 +35,15 @@ if (session_status() === PHP_SESSION_NONE) {
           echo "<tr>";
           echo "<td>" . htmlspecialchars($fila['marca_nombre']) . "</td>";
           echo "<td>" . htmlspecialchars($fila['modelo_nombre']) . "</td>";
-          echo "<td>" . htmlspecialchars($fila['año']) . "</td>";
+          echo "<td>" . htmlspecialchars($fila['anio']) . "</td>";
           echo "<td>" . htmlspecialchars($fila['vin']) . "</td>";
-          echo "<td>$" . number_format($fila['precio'], 2) . "</td>";
-          echo "<td>" . htmlspecialchars($fila['estado']) . "</td>";
+          echo "<td>" . number_format($fila['precio'], 2, ',', '.') . " €</td>";
+          echo "<td>" . htmlspecialchars($fila['estado']) . " · " . htmlspecialchars($fila['disponibilidad']) . "</td>";
           $csrf = csrf_campo_html();
           echo "<td>
         <a href='?accion=editar&id=" . $fila['id'] . "' class='editar' title='Editar'>✏</a>
         <form method='POST' class='form-eliminar' action='/admin/escritorio.php' style='display:inline'
-              onsubmit='return confirm(\"¿Seguro que quieres eliminar este vehículo?\")'>
+              data-confirm='¿Seguro que quieres eliminar este vehículo?'>
             {$csrf}
             <input type='hidden' name='accion' value='eliminar'>
             <input type='hidden' name='id' value='" . $fila['id'] . "'>
@@ -53,7 +53,8 @@ if (session_status() === PHP_SESSION_NONE) {
           echo "</tr>";
         }
       } else {
-        echo "<tr><td colspan='7'>Error en la consulta: " . $conexion->error . "</td></tr>";
+        error_log('leer.php: ' . $conexion->error);
+        echo "<tr><td colspan='7'>No se pudo cargar el listado.</td></tr>";
       }
 
       $conexion->close();

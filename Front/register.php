@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once dirname(__DIR__) . '/Back/db.php';
+require_once dirname(__DIR__) . '/Back/inc/csrf.php';
 $mensaje = '';
 $error = '';
 
@@ -22,7 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $clave_confirm = $_POST['clave_confirm'] ?? '';
 
     // Validaciones
-    if (empty($nombre) || empty($apellidos) || empty($usuario) || empty($dni_nie) || empty($email_real) || empty($clave)) {
+    if (!csrf_verificar()) {
+        $error = "Token de seguridad inválido. Recarga la página e inténtalo de nuevo.";
+    } elseif (empty($nombre) || empty($apellidos) || empty($usuario) || empty($dni_nie) || empty($email_real) || empty($clave)) {
         $error = "Todos los campos marcados con * son obligatorios";
     } elseif ($clave !== $clave_confirm) {
         $error = "Las contraseñas no coinciden";
@@ -142,6 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form action="register.php" method="POST">
+            <?php echo csrf_campo_html(); ?>
             <div id="input">
                 <input type="text" name="nombre" placeholder="Nombre(s) *" required
                     value="<?php echo htmlspecialchars($nombre ?? ''); ?>">

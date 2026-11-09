@@ -1,5 +1,7 @@
 <?php
-include dirname(__DIR__, 2) . "/db.php";
+require_once dirname(__DIR__) . '/auth.php';
+requerir_admin();
+include_once dirname(__DIR__, 2) . "/db.php";
 require_once dirname(__DIR__) . '/csrf.php';
 
 // Obtener marcas, modelos, accesorios y clientes
@@ -9,7 +11,8 @@ $accesorios = $conexion->query("SELECT id, nombre, precio FROM accesorio WHERE s
 $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY nombre ASC");
 ?>
 
-<form action="/api/inc/create/procesaformulario.php" method="POST" id="formVehiculo">
+<form action="/admin/escritorio.php" method="POST" id="formVehiculo">
+    <input type="hidden" name="accion" value="crear">
     <?= csrf_campo_html() ?>
     <!-- ══════════════════════════════════════════════════ -->
     <!-- SECCIÓN 1: DATOS DEL VEHÍCULO                      -->
@@ -39,8 +42,8 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
         </div>
 
         <div class="controlformulario">
-            <label for="año">Año</label>
-            <input type="number" name="año" id="año" min="1900" max="2100"
+            <label for="anio">Año</label>
+            <input type="number" name="anio" id="anio" min="1900" max="2100"
                    value="<?= date('Y') ?>" required>
         </div>
 
@@ -79,6 +82,8 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
             <input type="date" name="fecha_ingreso" id="fecha_ingreso"
                    value="<?= date('Y-m-d') ?>">
         </div>
+
+        <?php include dirname(__DIR__) . '/vehiculo_campos.php'; ?>
     </div>
 
     <!-- ══════════════════════════════════════════════════ -->
@@ -126,18 +131,18 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
         <h3 class="form-seccion-titulo"> Pruebas de Manejo (opcional)</h3>
         <p class="form-seccion-desc">Programa las pruebas de manejo para este vehículo. Puedes añadir varias.</p>
 
-        <div id="pruebas-container">
+        <div id="pruebas-container" data-hoy="<?= date('Y-m-d') ?>">
             <!-- Plantilla de una prueba (se clona con JS) -->
             <div class="prueba-item" id="prueba-0">
                 <div class="prueba-header">
                     <span>Prueba #<span class="prueba-num">1</span></span>
-                    <button type="button" class="btn-eliminar-prueba" onclick="eliminarPrueba(this)" style="display:none">✕ Eliminar</button>
+                    <button type="button" class="btn-eliminar-prueba" data-accion="remove-prueba" style="display:none">✕ Eliminar</button>
                 </div>
 
                 <div class="prueba-campos">
                     <div class="controlformulario">
                         <label>Cliente</label>
-                        <select name="prueba_cliente_id[]" required>
+                        <select name="prueba_cliente_id[]">
                             <option value="">-- Selecciona un cliente --</option>
                             <?php
                             $clientes->data_seek(0);
@@ -152,12 +157,12 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
 
                     <div class="controlformulario">
                         <label>Fecha</label>
-                        <input type="date" name="prueba_fecha[]" value="<?= date('Y-m-d') ?>" required>
+                        <input type="date" name="prueba_fecha[]" value="<?= date('Y-m-d') ?>">
                     </div>
 
                     <div class="controlformulario">
                         <label>Hora</label>
-                        <input type="time" name="prueba_hora[]" required>
+                        <input type="time" name="prueba_hora[]">
                     </div>
 
                     <div class="controlformulario">
@@ -168,7 +173,7 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
             </div>
         </div>
 
-        <button type="button" class="btn-añadir-prueba" onclick="añadirPrueba()">
+        <button type="button" class="btn-añadir-prueba" data-accion="add-prueba">
             + Añadir otra prueba de manejo
         </button>
     </div>
@@ -180,49 +185,4 @@ $clientes   = $conexion->query("SELECT id, nombre, DNI_NIE FROM cliente ORDER BY
 
 </form>
 
-<!-- ══════════════════════════════════════════════════ -->
-<!-- JAVASCRIPT: lógica de accesorios y pruebas         -->
-<!-- ══════════════════════════════════════════════════ -->
-<script>
-// --- ACCESORIOS: mostrar/ocultar campo de instalación ---
-document.querySelectorAll('.acc-check').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
-        var id = this.dataset.id;
-        var div = document.getElementById('instalacion-' + id);
-        div.style.display = this.checked ? 'block' : 'none';
-        // Si se desmarca, resetear el valor
-        if (!this.checked) {
-            div.querySelector('input').value = 0;
-        }
-    });
-});
-
-// --- PRUEBAS DE MANEJO: añadir y eliminar filas ---
-var contadorPruebas = 1; // Ya existe la prueba #0
-
-function añadirPrueba() {
-    var plantilla = document.getElementById('prueba-0').cloneNode(true);
-    plantilla.id = 'prueba-' + contadorPruebas;
-    // Actualizar número visible
-    plantilla.querySelector('.prueba-num').textContent = contadorPruebas + 1;
-    // Mostrar botón eliminar en las nuevas pruebas
-    plantilla.querySelector('.btn-eliminar-prueba').style.display = 'inline-block';
-    // Limpiar valores clonados
-    plantilla.querySelectorAll('input, select, textarea').forEach(function(el) {
-        if (el.type === 'date') el.value = '<?= date('Y-m-d') ?>';
-        else if (el.tagName === 'SELECT') el.selectedIndex = 0;
-        else el.value = '';
-    });
-    document.getElementById('pruebas-container').appendChild(plantilla);
-    contadorPruebas++;
-}
-
-function eliminarPrueba(btn) {
-    var item = btn.closest('.prueba-item');
-    item.remove();
-    // Renumerar las pruebas visibles
-    document.querySelectorAll('.prueba-item').forEach(function(p, i) {
-        p.querySelector('.prueba-num').textContent = i + 1;
-    });
-}
-</script>
+<!-- La lógica de accesorios y pruebas está en /back-js/escritorio.js -->

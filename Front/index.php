@@ -31,15 +31,15 @@ $marcas = [];
 $total_marcas = 0;
 
 $sql = "
-    SELECT v.id, v.vin, v.precio, v.año, v.color, v.kilometraje, v.estado, v.imagen,
+    SELECT v.id, v.vin, v.precio, v.anio, v.color, v.kilometraje, v.estado, v.disponibilidad, v.imagen,
            m.nombre as marca_nombre,
            mo.nombre as modelo_nombre,
            mo.tipo as modelo_tipo
     FROM vehiculo v
     INNER JOIN marca m ON v.marca_id = m.id
     INNER JOIN modelo mo ON v.modelo_id = mo.id
-    WHERE v.estado IN ('nuevo', 'usado')
-    ORDER BY v.fecha_ingreso DESC
+    WHERE v.disponibilidad <> 'vendido'
+    ORDER BY v.destacado DESC, v.fecha_ingreso DESC
     LIMIT 12
 ";
 
@@ -50,7 +50,7 @@ if ($resultado) {
     }
 }
 
-$sql_count = "SELECT COUNT(*) as total FROM vehiculo WHERE estado IN ('nuevo', 'usado')";
+$sql_count = "SELECT COUNT(*) as total FROM vehiculo WHERE disponibilidad <> 'vendido'";
 $resultado_count = $conexion->query($sql_count);
 if ($resultado_count) {
     $total_vehiculos = $resultado_count->fetch_assoc()['total'];
@@ -236,7 +236,7 @@ if ($logueado && $cliente_id) {
                             <div class="vehiculo-detalles">
                                 <div class="detalle-item">
                                     <span class="detalle-label"><?php echo $t['detalle_anio']; ?></span>
-                                    <span class="detalle-value"><?php echo htmlspecialchars($vehiculo['año']); ?></span>
+                                    <span class="detalle-value"><?php echo htmlspecialchars($vehiculo['anio']); ?></span>
                                 </div>
                                 <div class="detalle-item">
                                     <span class="detalle-label"><?php echo $t['detalle_km']; ?></span>

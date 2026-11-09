@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once dirname(__DIR__) . '/Back/db.php';
+require_once dirname(__DIR__) . '/Back/inc/csrf.php';
 
 if (!isset($_SESSION['logueado']) || $_SESSION['logueado'] !== true || !isset($_SESSION['cliente_id'])) {
     header('Location: login.php');
@@ -25,7 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password_repetir = $_POST['password_repetir'] ?? '';
 
     // Validaciones basicas
-    if (empty($nombre) || empty($email) || empty($telefono)) {
+    if (!csrf_verificar()) {
+        $error = "Token de seguridad inválido. Recarga la página e inténtalo de nuevo.";
+    } elseif (empty($nombre) || empty($email) || empty($telefono)) {
         $error = "Nombre, email y telefono son obligatorios.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "El formato del email no es valido.";
@@ -46,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = "Debes introducir tu contrasena actual para cambiarla.";
                 } elseif ($password_nuevo !== $password_repetir) {
                     $error = "La nueva contrasena no coincide con la confirmacion.";
-                } elseif (strlen($password_nuevo) < 6) {
-                    $error = "La nueva contrasena debe tener al menos 6 caracteres.";
+                } elseif (strlen($password_nuevo) < 8) {
+                    $error = "La nueva contrasena debe tener al menos 8 caracteres.";
                 } else {
                     // Verificar contrasena actual
                     $stmt = $conexion->prepare("SELECT contrasena FROM cliente WHERE id = ?");
@@ -181,6 +184,7 @@ $stmt->close();
             </div>
 
             <form method="POST">
+                <?php echo csrf_campo_html(); ?>
                 <div class="form-row">
                     <div>
                         <label>Nombre completo *</label>

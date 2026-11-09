@@ -1,0 +1,2 @@
+# Sin acceso directo por web: estos archivos solo se usan desde el servidor
+Require all denied

@@ -11,15 +11,21 @@ header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'");
 
 require_once dirname(__DIR__) . '/inc/csrf.php';
+require_once dirname(__DIR__) . '/inc/auth.php';
 
-if (!isset($_SESSION['admin_id']) || !isset($_SESSION['es_admin']) || $_SESSION['es_admin'] !== true) {
-    header("Location: index.php?error=acceso_denegado");
-    exit;
-}
+requerir_admin();
 
-if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
-    include "../inc/delete/eliminar.php";
-    exit;
+// Todas las operaciones de escritura pasan por aquí (Back/inc no es accesible por web)
+if (isset($_POST['accion'])) {
+    $acciones_post = [
+        'eliminar'   => '/inc/delete/eliminar.php',
+        'crear'      => '/inc/create/procesaformulario.php',
+        'actualizar' => '/inc/update/procesaformulario.php',
+    ];
+    if (isset($acciones_post[$_POST['accion']])) {
+        include dirname(__DIR__) . $acciones_post[$_POST['accion']];
+        exit;
+    }
 }
 ?>
 <!doctype html>
@@ -29,6 +35,7 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
     <title>AVLA Autosgestor - Admin</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/back-css/escritorio.css">
+    <script src="/back-js/escritorio.js" defer></script>
 </head>
 
 <body>
@@ -56,6 +63,10 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'eliminar') {
                 'creacion_fallida'  => 'No se pudo registrar el vehículo',
                 'actualizacion_fallida' => 'No se pudo actualizar el vehículo',
                 'metodo_no_permitido'   => 'Método de solicitud no permitido',
+                'prueba_duplicada'      => 'Ya existe una prueba de manejo de este vehículo en esa fecha y hora',
+                'datos_invalidos'       => 'Hay datos con formato no válido (revisa fechas, año y precio)',
+                'vin_duplicado'         => 'Ya existe un vehículo con ese VIN',
+                'matricula_duplicada'   => 'Ya existe un vehículo con esa matrícula',
             ];
             echo htmlspecialchars($errores[$_GET['error']] ?? 'Ocurrió un error');
             echo "</div>";

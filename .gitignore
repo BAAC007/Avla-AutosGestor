@@ -1,1 +1,7 @@
 .env
+.env.*
+!.env.example
+*.7z
+*.zip
+*.log
+.DS_Store
